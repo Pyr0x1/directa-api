@@ -1,21 +1,25 @@
 package it.pyrox.directa.parser;
 
 import it.pyrox.directa.api.DirectaApi;
+import it.pyrox.directa.api.DirectaApiConnectionManager;
 import it.pyrox.directa.enums.OrderStatusEnum;
+import it.pyrox.directa.model.Message;
 import it.pyrox.directa.model.OrderMessage;
 import it.pyrox.directa.enums.ApiEnum;
 
 import java.util.Optional;
 import java.util.StringTokenizer;
 
-public class OrderMessageParser implements MessageParser<OrderMessage> {
+public class OrderMessageParser implements MessageParser {
+
+    private static final int NUMBER_OF_TOKENS = 9;
 
     @Override
     public OrderMessage parse(String messageLine) {
         OrderMessage orderMessage = new OrderMessage();
         StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER);
-        if (tokenizer.countTokens() != getTokenCount(orderMessage)) {
-            throw new IllegalArgumentException("The message must contain " + getTokenCount(orderMessage) + " elements separated by " + DirectaApi.DELIMITER);
+        if (tokenizer.countTokens() != getTokenCount()) {
+            throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER);
         }
         int tokenCounter = 0;
         while (tokenizer.hasMoreTokens()) {
@@ -58,7 +62,7 @@ public class OrderMessageParser implements MessageParser<OrderMessage> {
     }
 
     @Override
-    public int getTokenCount(OrderMessage message) {
-        return message.getClass().getDeclaredFields().length;
+    public int getTokenCount() {
+        return NUMBER_OF_TOKENS;
     }
 }

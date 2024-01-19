@@ -1,10 +1,12 @@
 package it.pyrox.directa.parser;
 
+import it.pyrox.directa.model.Message;
+
 import java.util.Optional;
 
-public interface MessageParser<T> {
+public interface MessageParser {
 
-    public int getTokenCount(T message);
+    public Message parse(String messageLine);
 
-    public T parse(String messageLine);
+    public int getTokenCount();
 }

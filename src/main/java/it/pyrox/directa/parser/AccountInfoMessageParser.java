@@ -1,21 +1,20 @@
 package it.pyrox.directa.parser;
 
 import it.pyrox.directa.api.DirectaApi;
-import it.pyrox.directa.api.DirectaApiConnectionManager;
 import it.pyrox.directa.enums.ApiEnum;
+import it.pyrox.directa.model.AccountInfoMessage;
 import it.pyrox.directa.model.Message;
-import it.pyrox.directa.model.StockMessage;
 
 import java.util.Optional;
 import java.util.StringTokenizer;
 
-public class StockMessageParser implements MessageParser {
+public class AccountInfoMessageParser implements MessageParser {
 
-    private static final int NUMBER_OF_TOKENS = 8;
+    private static final int NUMBER_OF_TOKENS = 6;
 
     @Override
-    public StockMessage parse(String messageLine) {
-        StockMessage stockMessage = new StockMessage();
+    public AccountInfoMessage parse(String messageLine) {
+        AccountInfoMessage accountInfoMessage = new AccountInfoMessage();
         StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER);
         if (tokenizer.countTokens() != getTokenCount()) {
             throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER);
@@ -27,33 +26,27 @@ public class StockMessageParser implements MessageParser {
             String trimmedToken = token.trim();
             switch (tokenCounter) {
                 case 0:
-                    stockMessage.setType(trimmedToken);
+                    accountInfoMessage.setType(trimmedToken);
                     break;
                 case 1:
-                    stockMessage.setTicker(trimmedToken);
+                    accountInfoMessage.setTime(trimmedToken);
                     break;
                 case 2:
-                    stockMessage.setTime(trimmedToken);
+                    accountInfoMessage.setAccountId(trimmedToken);
                     break;
                 case 3:
-                    stockMessage.setPortfolioAmount(Integer.parseInt(trimmedToken));
+                    accountInfoMessage.setLiquidity(Double.parseDouble(trimmedToken));
                     break;
                 case 4:
-                    stockMessage.setBrokerAmount(trimmedToken);
+                    accountInfoMessage.setGainEuro(Double.parseDouble(trimmedToken));
                     break;
                 case 5:
-                    stockMessage.setTradingAmount(Integer.parseInt(trimmedToken));
-                    break;
-                case 6:
-                    stockMessage.setAveragePrice(Double.parseDouble(trimmedToken));
-                    break;
-                case 7:
-                    stockMessage.setGain(Double.parseDouble(trimmedToken));
+                    accountInfoMessage.setOpenProfitLoss(Double.parseDouble(trimmedToken));
                     break;
             }
             tokenCounter++;
         }
-        return stockMessage;
+        return accountInfoMessage;
     }
 
     @Override

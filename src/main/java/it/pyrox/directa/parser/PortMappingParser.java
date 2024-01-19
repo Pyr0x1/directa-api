@@ -1,15 +1,17 @@
 package it.pyrox.directa.parser;
 
 import it.pyrox.directa.api.DirectaApi;
+import it.pyrox.directa.api.DirectaApiConnectionManager;
 import it.pyrox.directa.enums.ApiEnum;
 import it.pyrox.directa.model.PortMappingMessage;
 
 import java.util.Optional;
 import java.util.StringTokenizer;
 
-public class PortMappingParser implements MessageParser<PortMappingMessage> {
+public class PortMappingParser {
 
-    @Override
+    private static final int NUMBER_OF_TOKENS = 4;
+
     public PortMappingMessage parse(String messageLine) {
         PortMappingMessage portMappingMessage = new PortMappingMessage();
         StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER);
@@ -40,8 +42,7 @@ public class PortMappingParser implements MessageParser<PortMappingMessage> {
         return portMappingMessage;
     }
 
-    @Override
     public int getTokenCount(PortMappingMessage message) {
-        return message.getClass().getDeclaredFields().length;
+        return NUMBER_OF_TOKENS;
     }
 }

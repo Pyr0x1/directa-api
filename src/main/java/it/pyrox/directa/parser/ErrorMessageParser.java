@@ -1,22 +1,22 @@
 package it.pyrox.directa.parser;
 
 import it.pyrox.directa.api.DirectaApi;
-import it.pyrox.directa.api.DirectaApiConnectionManager;
 import it.pyrox.directa.enums.ApiEnum;
-import it.pyrox.directa.enums.ConnectionStatusEnum;
+import it.pyrox.directa.enums.ErrorEnum;
+import it.pyrox.directa.model.AvailabilityMessage;
+import it.pyrox.directa.model.ErrorMessage;
 import it.pyrox.directa.model.Message;
-import it.pyrox.directa.model.StatusMessage;
 
 import java.util.Optional;
 import java.util.StringTokenizer;
 
-public class StatusMessageParser implements MessageParser {
+public class ErrorMessageParser implements MessageParser {
 
-    private static final int NUMBER_OF_TOKENS = 4;
+    private static final int NUMBER_OF_TOKENS = 3;
 
     @Override
-    public StatusMessage parse(String messageLine) {
-        StatusMessage statusMessage = new StatusMessage();
+    public ErrorMessage parse(String messageLine) {
+        ErrorMessage errorMessage = new ErrorMessage();
         StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER);
         if (tokenizer.countTokens() != getTokenCount()) {
             throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER);
@@ -28,22 +28,18 @@ public class StatusMessageParser implements MessageParser {
             String trimmedToken = token.trim();
             switch (tokenCounter) {
                 case 0:
-                    statusMessage.setType(trimmedToken);
+                    errorMessage.setType(trimmedToken);
                     break;
                 case 1:
-                    Optional<ConnectionStatusEnum> optEnum = ConnectionStatusEnum.decode(trimmedToken);
-                    statusMessage.setConnectionStatus(optEnum.orElse(null));
+                    errorMessage.setTicker(trimmedToken);
                     break;
                 case 2:
-                    statusMessage.setDatafeedEnabled("TRUE".equals(trimmedToken));
-                    break;
-                case 3:
-                    statusMessage.setRelease(trimmedToken);
+                    errorMessage.setError(ErrorEnum.decode(Integer.parseInt(trimmedToken)));
                     break;
             }
             tokenCounter++;
         }
-        return statusMessage;
+        return errorMessage;
     }
 
     @Override

@@ -1,21 +1,21 @@
 package it.pyrox.directa.parser;
 
 import it.pyrox.directa.api.DirectaApi;
-import it.pyrox.directa.api.DirectaApiConnectionManager;
 import it.pyrox.directa.enums.ApiEnum;
+import it.pyrox.directa.model.AvailabilityMessage;
 import it.pyrox.directa.model.Message;
-import it.pyrox.directa.model.StockMessage;
+import it.pyrox.directa.model.OrderMessage;
 
 import java.util.Optional;
 import java.util.StringTokenizer;
 
-public class StockMessageParser implements MessageParser {
+public class AvailabilityMessageParser implements MessageParser {
 
-    private static final int NUMBER_OF_TOKENS = 8;
+    private static final int NUMBER_OF_TOKENS = 7;
 
     @Override
-    public StockMessage parse(String messageLine) {
-        StockMessage stockMessage = new StockMessage();
+    public AvailabilityMessage parse(String messageLine) {
+        AvailabilityMessage availabilityMessage = new AvailabilityMessage();
         StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER);
         if (tokenizer.countTokens() != getTokenCount()) {
             throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER);
@@ -27,33 +27,30 @@ public class StockMessageParser implements MessageParser {
             String trimmedToken = token.trim();
             switch (tokenCounter) {
                 case 0:
-                    stockMessage.setType(trimmedToken);
+                    availabilityMessage.setType(trimmedToken);
                     break;
                 case 1:
-                    stockMessage.setTicker(trimmedToken);
+                    availabilityMessage.setTime(trimmedToken);
                     break;
                 case 2:
-                    stockMessage.setTime(trimmedToken);
+                    availabilityMessage.setStocksAvailability(Integer.parseInt(trimmedToken));
                     break;
                 case 3:
-                    stockMessage.setPortfolioAmount(Integer.parseInt(trimmedToken));
+                    availabilityMessage.setStocksAvailabilityWithLeverage(Integer.parseInt(trimmedToken));
                     break;
                 case 4:
-                    stockMessage.setBrokerAmount(trimmedToken);
+                    availabilityMessage.setDerivativesAvailability(Integer.parseInt(trimmedToken));
                     break;
                 case 5:
-                    stockMessage.setTradingAmount(Integer.parseInt(trimmedToken));
+                    availabilityMessage.setDerivativesAvailabilityWithLeverage(Integer.parseInt(trimmedToken));
                     break;
                 case 6:
-                    stockMessage.setAveragePrice(Double.parseDouble(trimmedToken));
-                    break;
-                case 7:
-                    stockMessage.setGain(Double.parseDouble(trimmedToken));
+                    availabilityMessage.setTotalLiquidity(Double.parseDouble(trimmedToken));
                     break;
             }
             tokenCounter++;
         }
-        return stockMessage;
+        return availabilityMessage;
     }
 
     @Override

@@ -1,8 +1,8 @@
 package it.pyrox.directa.model;
 
-public class StockMessage {
+public class StockMessage extends Message {
 
-    private String type;
+    public static final String PREFIX = "STOCK";
     private String ticker;
     private String time;
     private int portfolioAmount;
@@ -10,14 +10,6 @@ public class StockMessage {
     private int tradingAmount;
     private double averagePrice;
     private double gain;
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
 
     public String getTicker() {
         return ticker;
@@ -73,5 +65,19 @@ public class StockMessage {
 
     public void setGain(double gain) {
         this.gain = gain;
+    }
+
+    @Override
+    public String toString() {
+        return "StockMessage{" +
+                "type='" + type + '\'' +
+                ", ticker='" + ticker + '\'' +
+                ", time='" + time + '\'' +
+                ", portfolioAmount=" + portfolioAmount +
+                ", brokerAmount='" + brokerAmount + '\'' +
+                ", tradingAmount=" + tradingAmount +
+                ", averagePrice=" + averagePrice +
+                ", gain=" + gain +
+                '}';
     }
 }

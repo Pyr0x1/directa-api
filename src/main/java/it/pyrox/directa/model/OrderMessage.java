@@ -2,8 +2,8 @@ package it.pyrox.directa.model;
 
 import it.pyrox.directa.enums.OrderStatusEnum;
 
-public class OrderMessage {
-    private String type;
+public class OrderMessage extends Message {
+    public static final String PREFIX = "ORDER";
     private String ticker;
     private String time;
     private String orderId;
@@ -12,14 +12,6 @@ public class OrderMessage {
     private double triggerPrice;
     private int amount;
     private OrderStatusEnum orderStatus;
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
 
     public String getTicker() {
         return ticker;
@@ -83,5 +75,20 @@ public class OrderMessage {
 
     public void setOrderStatus(OrderStatusEnum orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderMessage{" +
+                "type='" + type + '\'' +
+                ", ticker='" + ticker + '\'' +
+                ", time='" + time + '\'' +
+                ", orderId='" + orderId + '\'' +
+                ", operationType='" + operationType + '\'' +
+                ", limitPrice=" + limitPrice +
+                ", triggerPrice=" + triggerPrice +
+                ", amount=" + amount +
+                ", orderStatus=" + orderStatus +
+                '}';
     }
 }

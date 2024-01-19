@@ -2,23 +2,15 @@ package it.pyrox.directa.model;
 
 import it.pyrox.directa.enums.ConnectionStatusEnum;
 
-public class StatusMessage {
+public class StatusMessage extends Message {
 
-    private String type;
+    public static final String PREFIX = "DARWIN_STATUS";
 
     private ConnectionStatusEnum connectionStatus;
 
     private boolean isDatafeedEnabled;
 
     private String release;
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
 
     public ConnectionStatusEnum getConnectionStatus() {
         return connectionStatus;
@@ -42,5 +34,15 @@ public class StatusMessage {
 
     public void setRelease(String release) {
         this.release = release;
+    }
+
+    @Override
+    public String toString() {
+        return "StatusMessage{" +
+                "type='" + type + '\'' +
+                ", connectionStatus=" + connectionStatus +
+                ", isDatafeedEnabled=" + isDatafeedEnabled +
+                ", release='" + release + '\'' +
+                '}';
     }
 }
