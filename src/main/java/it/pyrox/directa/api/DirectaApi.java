@@ -36,6 +36,26 @@ public abstract class DirectaApi {
         return readStatus();
     }
 
+    /**
+     * It allows to close the Darwin platform directly through an API command
+     *
+     * @param saveDesktop Saves the desktop configuration before exit
+     * @throws IOException In case of communication error
+     */
+    public void closeDarwin(boolean saveDesktop) throws IOException {
+        String comamnd = "CLOSEDARWIN";
+        if (!saveDesktop) {
+            comamnd += " FALSE";
+        }
+        connectionManager.sendCommand(comamnd);
+    }
+
+    /**
+     * Returns information about the connection and the platform version
+     *
+     * @return A StatusMessage containing status info
+     * @throws IOException In case of communication error
+     */
     protected StatusMessage readStatus() throws IOException {
         StatusMessageParser parser = new StatusMessageParser();
         // I expect only one line in response

@@ -3,14 +3,13 @@ package it.pyrox.directa.parser;
 import it.pyrox.directa.api.DirectaApi;
 import it.pyrox.directa.enums.ApiEnum;
 import it.pyrox.directa.model.AccountInfoMessage;
-import it.pyrox.directa.model.Message;
 
 import java.util.Optional;
 import java.util.StringTokenizer;
 
 public class AccountInfoMessageParser implements MessageParser {
 
-    private static final int NUMBER_OF_TOKENS = 6;
+    private static final int NUMBER_OF_TOKENS = 8;
 
     @Override
     public AccountInfoMessage parse(String messageLine) {
@@ -42,6 +41,12 @@ public class AccountInfoMessageParser implements MessageParser {
                     break;
                 case 5:
                     accountInfoMessage.setOpenProfitLoss(Double.parseDouble(trimmedToken));
+                    break;
+                case 6:
+                    accountInfoMessage.setEquity(Double.parseDouble(trimmedToken));
+                    break;
+                case 7:
+                    accountInfoMessage.setEnvironment(trimmedToken);
                     break;
             }
             tokenCounter++;

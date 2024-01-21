@@ -24,6 +24,9 @@ public class ParserFactory {
         else if (messageLine.startsWith(StockMessage.PREFIX)) {
             parser = new StockMessageParser();
         }
+        else if (messageLine.startsWith(AccountInfoMessage.PREFIX)) {
+            parser = new AccountInfoMessageParser();
+        }
 
         return parser;
     }

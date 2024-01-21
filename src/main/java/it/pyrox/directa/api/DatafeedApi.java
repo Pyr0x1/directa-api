@@ -8,6 +8,7 @@ public class DatafeedApi extends DirectaApi {
 
     private String accountId;
 
+    // Used in tests only
     protected DatafeedApi(String accountId, DirectaApiConnectionManager connectionManager) {
         super(accountId, connectionManager);
     }
