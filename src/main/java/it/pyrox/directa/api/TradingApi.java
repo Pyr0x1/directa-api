@@ -147,8 +147,9 @@ public class TradingApi extends DirectaApi {
      * @param filterExecuted Set it to true to filter out executed orders (this can be true only if the flag for cancelled orders is true)
      * @return A list of OrderMessage containing order info
      * @throws IOException In case of communication error
+     * @throws ErrorMessageException In case of application error
      */
-    public List<OrderMessage> getOrderList(boolean filterCanceled, boolean filterExecuted) throws IOException {
+    public List<OrderMessage> getOrderList(boolean filterCanceled, boolean filterExecuted) throws IOException, ErrorMessageException {
         List<OrderMessage> response = new ArrayList<>();
         if (filterExecuted && !filterCanceled) {
             throw new IllegalArgumentException("Unsupported filter combination, you can filter out executed orders only if you filter out cancelled orders as well");
@@ -165,8 +166,14 @@ public class TradingApi extends DirectaApi {
         try {
             while (true) {
                 String messageLine = connectionManager.readMessageLine();
-                OrderMessageParser parser = new OrderMessageParser();
-                response.add((parser).parse(messageLine));
+                MessageParser parser = ParserFactory.create(messageLine);
+                if (parser instanceof OrderMessageParser) {
+                    response.add(((OrderMessageParser)parser).parse(messageLine));
+                }
+                else if (parser instanceof ErrorMessageParser) {
+                    ErrorMessage errorMessage = ((ErrorMessageParser) parser).parse(messageLine);
+                    throw new ErrorMessageException(errorMessage.getError());
+                }
             }
         } catch (SocketTimeoutException e) {
             // Break the loop in case of socket timeout, must do this
@@ -181,15 +188,22 @@ public class TradingApi extends DirectaApi {
      * @param ticker The ticker you want to search for related orders
      * @return A list of OrderMessage containing order info
      * @throws IOException In case of communication error
+     * @throws ErrorMessageException In case of application error
      */
-    public List<OrderMessage> getOrderList(String ticker) throws IOException {
+    public List<OrderMessage> getOrderList(String ticker) throws IOException, ErrorMessageException {
         List<OrderMessage> response = new ArrayList<>();
         connectionManager.sendCommand("ORDERLIST " + ticker);
         try {
             while (true) {
                 String messageLine = connectionManager.readMessageLine();
-                OrderMessageParser parser = new OrderMessageParser();
-                response.add((parser).parse(messageLine));
+                MessageParser parser = ParserFactory.create(messageLine);
+                if (parser instanceof OrderMessageParser) {
+                    response.add(((OrderMessageParser)parser).parse(messageLine));
+                }
+                else if (parser instanceof ErrorMessageParser) {
+                    ErrorMessage errorMessage = ((ErrorMessageParser) parser).parse(messageLine);
+                    throw new ErrorMessageException(errorMessage.getError());
+                }
             }
         } catch (SocketTimeoutException e) {
             // Break the loop in case of socket timeout, must do this
