@@ -60,13 +60,14 @@ public class TradingApi extends DirectaApi {
      * @throws IOException In case of communication error
      */
     public PortMappingMessage getMappedPorts() throws IOException {
+        PortMappingMessageParser parser = new PortMappingMessageParser();
         PortMappingMessage portMapping = null;
         connectionManager.sendCommand("SETCONNECTION");
         List<String> messageLines = connectionManager.readDelimitedMessage("BEGIN PORT", "END PORT", false);
         for (String messageLine : messageLines) {
             String accountId = messageLine.split(DELIMITER)[0];
             if (super.accountId.equals(accountId)) {
-                portMapping = new PortMappingParser().parse(messageLine);
+                portMapping = parser.parse(messageLine);
             }
         }
         return portMapping;
@@ -208,6 +209,33 @@ public class TradingApi extends DirectaApi {
         } catch (SocketTimeoutException e) {
             // Break the loop in case of socket timeout, must do this
             // because I do not know beforehand how many lines to read
+        }
+        return response;
+    }
+
+    // TODO check what is returned when no table is present
+    public List<TableMessage> getTableList() throws IOException {
+        TableMessageParser parser = new TableMessageParser();
+        List<TableMessage> response = new ArrayList<>();
+        connectionManager.sendCommand("TABLELIST");
+        List<String> messageLines = connectionManager.readDelimitedMessage("BEGIN TABLE", "END TABLE", false);
+        for (String messageLine : messageLines) {
+            response.add(parser.parse(messageLine));
+        }
+        return response;
+    }
+
+    // TODO check what is returned when no ticker is present
+    public List<TableMessage> getTableTickerList(TableMessage tableName) throws IOException {
+        if (tableName == null || tableName.getCode() == null || tableName.getDescription() == null) {
+            throw new IllegalArgumentException("The table name must be specified with both code and description");
+        }
+        TableMessageParser parser = new TableMessageParser();
+        List<TableMessage> response = new ArrayList<>();
+        connectionManager.sendCommand("TABLE " + tableName.getCode() + DirectaApi.DELIMITER + tableName.getDescription());
+        List<String> messageLines = connectionManager.readDelimitedMessage("BEGIN LIST", "END LIST", false);
+        for (String messageLine : messageLines) {
+            response.add(parser.parse(messageLine));
         }
         return response;
     }

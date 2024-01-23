@@ -8,7 +8,7 @@ import it.pyrox.directa.model.PortMappingMessage;
 import java.util.Optional;
 import java.util.StringTokenizer;
 
-public class PortMappingParser {
+public class PortMappingMessageParser {
 
     private static final int NUMBER_OF_TOKENS = 4;
 

@@ -296,6 +296,83 @@ public class TradingApiTest {
         assertEquals(ErrorEnum.ERR_EMPTY_ORDERLIST, exception.getError());
     }
 
+    @Test
+    void testGetTableListWhenMultipleRecordsThenMapThem() throws IOException {
+        List<String> responseMessage = List.of(
+                "BEGIN TABLE",
+                "AO;OPTIONS",
+                "AC;COMBO",
+                "M0;MOT",
+                "AZ;FIB",
+                "END TABLE");
+        TradingApi api = getMockedApi(testAccountId, responseMessage);
+        List<TableMessage> tableMessageList = api.getTableList();
+        assertNotNull(tableMessageList);
+        assertEquals(4, tableMessageList.size());
+        assertEquals("AO", tableMessageList.get(0).getCode());
+        assertEquals("OPTIONS", tableMessageList.get(0).getDescription());
+        assertEquals("AC", tableMessageList.get(1).getCode());
+        assertEquals("COMBO", tableMessageList.get(1).getDescription());
+        assertEquals("M0", tableMessageList.get(2).getCode());
+        assertEquals("MOT", tableMessageList.get(2).getDescription());
+        assertEquals("AZ", tableMessageList.get(3).getCode());
+        assertEquals("FIB", tableMessageList.get(3).getDescription());
+    }
+
+    @Test
+    void testGetTableTickerListWhenMultipleRecordsThenMapThem() throws IOException {
+        List<String> responseMessage = List.of(
+                "BEGIN LIST A1;PRIMA (9)",
+                "AZM;AZIMUT",
+                "A2A;A2A",
+                "B2B;BLA2BLA",
+                "END LIST");
+        TradingApi api = getMockedApi(testAccountId, responseMessage);
+        TableMessage tableMessage = new TableMessage();
+        tableMessage.setCode("A1");
+        tableMessage.setDescription("PRIMA");
+        List<TableMessage> tableMessageList = api.getTableTickerList(tableMessage);
+        assertNotNull(tableMessageList);
+        assertEquals(3, tableMessageList.size());
+        assertEquals("AZM", tableMessageList.get(0).getCode());
+        assertEquals("AZIMUT", tableMessageList.get(0).getDescription());
+        assertEquals("A2A", tableMessageList.get(1).getCode());
+        assertEquals("A2A", tableMessageList.get(1).getDescription());
+        assertEquals("B2B", tableMessageList.get(2).getCode());
+        assertEquals("BLA2BLA", tableMessageList.get(2).getDescription());
+    }
+
+    @Test
+    void testGetTableTickerListWhenNoInputThenError() throws IOException {
+        TradingApi api = getMockedApi(testAccountId, null);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            api.getTableTickerList(null);
+        });
+        assertNotNull(exception);
+    }
+
+    @Test
+    void testGetTableTickerListWhenNoTableCodeThenError() throws IOException {
+        TableMessage tableMessage = new TableMessage();
+        tableMessage.setDescription("test");
+        TradingApi api = getMockedApi(testAccountId, null);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            api.getTableTickerList(tableMessage);
+        });
+        assertNotNull(exception);
+    }
+
+    @Test
+    void testGetTableTickerListWhenNoTableDescriptionThenError() throws IOException {
+        TableMessage tableMessage = new TableMessage();
+        tableMessage.setCode("code");
+        TradingApi api = getMockedApi(testAccountId, null);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            api.getTableTickerList(tableMessage);
+        });
+        assertNotNull(exception);
+    }
+
     // TODO this is a shared functionality, so maybe it could be moved in a common test class where all shared functionalities are tested
     @Test
     void testGetStatusWhenOneRecordThenMapIt() throws IOException {

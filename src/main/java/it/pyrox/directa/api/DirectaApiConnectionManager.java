@@ -71,7 +71,7 @@ public class DirectaApiConnectionManager {
         String buffer = null;
         List<String> lines = new ArrayList<>();
         buffer = readMessageLine();
-        while (!start.equals(buffer)) {
+        while (!buffer.startsWith(start)) {
             buffer = readMessageLine();
         }
         if (includeDelimiters) {
