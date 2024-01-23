@@ -237,6 +237,65 @@ public class TradingApiTest {
         assertNotNull(exception);
     }
 
+    @Test
+    void testGetOrderListWithTickerWhenOneRecordThenMapIt() throws IOException, ErrorMessageException {
+        List<String> responseMessage = List.of("ORDER;STLAM;16:20:40;ORD1;ACQAZ;4.75;0.0;10;2000");
+        TradingApi api = getMockedApi(testAccountId, responseMessage);
+        List<OrderMessage> orderMessageList = api.getOrderList("STLAM");
+        assertNotNull(orderMessageList);
+        assertEquals(1, orderMessageList.size());
+        assertEquals(OrderMessage.PREFIX, orderMessageList.get(0).getType());
+        assertEquals("STLAM", orderMessageList.get(0).getTicker());
+        assertEquals("16:20:40", orderMessageList.get(0).getTime());
+        assertEquals("ORD1", orderMessageList.get(0).getOrderId());
+        assertEquals("ACQAZ", orderMessageList.get(0).getOperationType());
+        assertEquals(4.75, orderMessageList.get(0).getLimitPrice());
+        assertEquals(0.0, orderMessageList.get(0).getTriggerPrice());
+        assertEquals(10, orderMessageList.get(0).getAmount());
+        assertEquals(OrderStatusEnum.IN_NEGOTIATION, orderMessageList.get(0).getOrderStatus());
+    }
+
+    @Test
+    void testGetOrderListWithTickerWhenMultipleRecordsThenMapThem() throws IOException, ErrorMessageException {
+        List<String> responseMessage = List.of("ORDER;STLAM;16:20:40;ORD1;ACQAZ;4.75;0.0;10;2000",
+                "ORDER;STLAM;17:25:51;ORD2;ACQAZ;5.75;1.0;20;2005");
+        TradingApi api = getMockedApi(testAccountId, responseMessage);
+        List<OrderMessage> orderMessageList = api.getOrderList("STLAM");
+        assertNotNull(orderMessageList);
+        assertEquals(2, orderMessageList.size());
+        // Record 1
+        assertEquals(OrderMessage.PREFIX, orderMessageList.get(0).getType());
+        assertEquals("STLAM", orderMessageList.get(0).getTicker());
+        assertEquals("16:20:40", orderMessageList.get(0).getTime());
+        assertEquals("ORD1", orderMessageList.get(0).getOrderId());
+        assertEquals("ACQAZ", orderMessageList.get(0).getOperationType());
+        assertEquals(4.75, orderMessageList.get(0).getLimitPrice());
+        assertEquals(0.0, orderMessageList.get(0).getTriggerPrice());
+        assertEquals(10, orderMessageList.get(0).getAmount());
+        assertEquals(OrderStatusEnum.IN_NEGOTIATION, orderMessageList.get(0).getOrderStatus());
+        // Record 2
+        assertEquals(OrderMessage.PREFIX, orderMessageList.get(1).getType());
+        assertEquals("STLAM", orderMessageList.get(1).getTicker());
+        assertEquals("17:25:51", orderMessageList.get(1).getTime());
+        assertEquals("ORD2", orderMessageList.get(1).getOrderId());
+        assertEquals("ACQAZ", orderMessageList.get(1).getOperationType());
+        assertEquals(5.75, orderMessageList.get(1).getLimitPrice());
+        assertEquals(1.0, orderMessageList.get(1).getTriggerPrice());
+        assertEquals(20, orderMessageList.get(1).getAmount());
+        assertEquals(OrderStatusEnum.WAITING_FOR_VALIDATION, orderMessageList.get(1).getOrderStatus());
+    }
+
+    @Test
+    void testGetOrderListWhenNoOrdersThenError() throws IOException {
+        List<String> responseMessage = List.of("ERR;B2B;1019");
+        TradingApi api = getMockedApi(testAccountId, responseMessage);
+        ErrorMessageException exception = assertThrows(ErrorMessageException.class, () -> {
+            api.getOrderList("STLAM");
+        });
+        assertNotNull(exception);
+        assertEquals(ErrorEnum.ERR_EMPTY_ORDERLIST, exception.getError());
+    }
+
     // TODO this is a shared functionality, so maybe it could be moved in a common test class where all shared functionalities are tested
     @Test
     void testGetStatusWhenOneRecordThenMapIt() throws IOException {
