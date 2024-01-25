@@ -2,6 +2,7 @@ package it.pyrox.directa.parser;
 
 import it.pyrox.directa.api.DirectaApi;
 import it.pyrox.directa.api.DirectaApiConnectionManager;
+import it.pyrox.directa.enums.OrderActionEnum;
 import it.pyrox.directa.enums.OrderStatusEnum;
 import it.pyrox.directa.model.Message;
 import it.pyrox.directa.model.OrderMessage;
@@ -40,7 +41,8 @@ public class OrderMessageParser implements MessageParser {
                     orderMessage.setOrderId(trimmedToken);
                     break;
                 case 4:
-                    orderMessage.setOperationType(trimmedToken);
+                    Optional<OrderActionEnum> optActionEnum = OrderActionEnum.decode(trimmedToken);
+                    orderMessage.setOperationType(optActionEnum.orElse(null));
                     break;
                 case 5:
                     orderMessage.setLimitPrice(Double.parseDouble(trimmedToken));
@@ -52,8 +54,8 @@ public class OrderMessageParser implements MessageParser {
                     orderMessage.setAmount(Integer.parseInt(trimmedToken));
                     break;
                 case 8:
-                    Optional<OrderStatusEnum> optEnum = OrderStatusEnum.decode(Integer.parseInt(trimmedToken));
-                    orderMessage.setOrderStatus(optEnum.orElse(null));
+                    Optional<OrderStatusEnum> optStatusEnum = OrderStatusEnum.decode(Integer.parseInt(trimmedToken));
+                    orderMessage.setOrderStatus(optStatusEnum.orElse(null));
                     break;
             }
             tokenCounter++;

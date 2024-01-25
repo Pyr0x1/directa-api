@@ -1,5 +1,6 @@
 package it.pyrox.directa.model;
 
+import it.pyrox.directa.enums.OrderActionEnum;
 import it.pyrox.directa.enums.OrderStatusEnum;
 
 public class OrderMessage extends Message {
@@ -7,7 +8,7 @@ public class OrderMessage extends Message {
     private String ticker;
     private String time;
     private String orderId;
-    private String operationType;
+    private OrderActionEnum operationType;
     private double limitPrice;
     private double triggerPrice;
     private int amount;
@@ -37,11 +38,11 @@ public class OrderMessage extends Message {
         this.orderId = orderId;
     }
 
-    public String getOperationType() {
+    public OrderActionEnum getOperationType() {
         return operationType;
     }
 
-    public void setOperationType(String operationType) {
+    public void setOperationType(OrderActionEnum operationType) {
         this.operationType = operationType;
     }
 

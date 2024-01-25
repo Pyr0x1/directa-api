@@ -2,6 +2,7 @@ package it.pyrox.directa.api;
 
 import it.pyrox.directa.enums.ConnectionStatusEnum;
 import it.pyrox.directa.enums.ErrorEnum;
+import it.pyrox.directa.enums.OrderActionEnum;
 import it.pyrox.directa.enums.OrderStatusEnum;
 import it.pyrox.directa.exception.ErrorMessageException;
 import it.pyrox.directa.model.*;
@@ -180,7 +181,7 @@ public class TradingApiTest {
         assertEquals("STLAM", orderMessageList.get(0).getTicker());
         assertEquals("16:20:40", orderMessageList.get(0).getTime());
         assertEquals("ORD1", orderMessageList.get(0).getOrderId());
-        assertEquals("ACQAZ", orderMessageList.get(0).getOperationType());
+        assertEquals(OrderActionEnum.ACQAZ, orderMessageList.get(0).getOperationType());
         assertEquals(4.75, orderMessageList.get(0).getLimitPrice());
         assertEquals(0.0, orderMessageList.get(0).getTriggerPrice());
         assertEquals(10, orderMessageList.get(0).getAmount());
@@ -200,7 +201,7 @@ public class TradingApiTest {
         assertEquals("STLAM", orderMessageList.get(0).getTicker());
         assertEquals("16:20:40", orderMessageList.get(0).getTime());
         assertEquals("ORD1", orderMessageList.get(0).getOrderId());
-        assertEquals("ACQAZ", orderMessageList.get(0).getOperationType());
+        assertEquals(OrderActionEnum.ACQAZ, orderMessageList.get(0).getOperationType());
         assertEquals(4.75, orderMessageList.get(0).getLimitPrice());
         assertEquals(0.0, orderMessageList.get(0).getTriggerPrice());
         assertEquals(10, orderMessageList.get(0).getAmount());
@@ -210,7 +211,7 @@ public class TradingApiTest {
         assertEquals("SPAM", orderMessageList.get(1).getTicker());
         assertEquals("17:25:51", orderMessageList.get(1).getTime());
         assertEquals("ORD2", orderMessageList.get(1).getOrderId());
-        assertEquals("ACQAZ", orderMessageList.get(1).getOperationType());
+        assertEquals(OrderActionEnum.ACQAZ, orderMessageList.get(1).getOperationType());
         assertEquals(5.75, orderMessageList.get(1).getLimitPrice());
         assertEquals(1.0, orderMessageList.get(1).getTriggerPrice());
         assertEquals(20, orderMessageList.get(1).getAmount());
@@ -248,7 +249,7 @@ public class TradingApiTest {
         assertEquals("STLAM", orderMessageList.get(0).getTicker());
         assertEquals("16:20:40", orderMessageList.get(0).getTime());
         assertEquals("ORD1", orderMessageList.get(0).getOrderId());
-        assertEquals("ACQAZ", orderMessageList.get(0).getOperationType());
+        assertEquals(OrderActionEnum.ACQAZ, orderMessageList.get(0).getOperationType());
         assertEquals(4.75, orderMessageList.get(0).getLimitPrice());
         assertEquals(0.0, orderMessageList.get(0).getTriggerPrice());
         assertEquals(10, orderMessageList.get(0).getAmount());
@@ -268,7 +269,7 @@ public class TradingApiTest {
         assertEquals("STLAM", orderMessageList.get(0).getTicker());
         assertEquals("16:20:40", orderMessageList.get(0).getTime());
         assertEquals("ORD1", orderMessageList.get(0).getOrderId());
-        assertEquals("ACQAZ", orderMessageList.get(0).getOperationType());
+        assertEquals(OrderActionEnum.ACQAZ, orderMessageList.get(0).getOperationType());
         assertEquals(4.75, orderMessageList.get(0).getLimitPrice());
         assertEquals(0.0, orderMessageList.get(0).getTriggerPrice());
         assertEquals(10, orderMessageList.get(0).getAmount());
@@ -278,7 +279,7 @@ public class TradingApiTest {
         assertEquals("STLAM", orderMessageList.get(1).getTicker());
         assertEquals("17:25:51", orderMessageList.get(1).getTime());
         assertEquals("ORD2", orderMessageList.get(1).getOrderId());
-        assertEquals("ACQAZ", orderMessageList.get(1).getOperationType());
+        assertEquals(OrderActionEnum.ACQAZ, orderMessageList.get(1).getOperationType());
         assertEquals(5.75, orderMessageList.get(1).getLimitPrice());
         assertEquals(1.0, orderMessageList.get(1).getTriggerPrice());
         assertEquals(20, orderMessageList.get(1).getAmount());
@@ -340,6 +341,20 @@ public class TradingApiTest {
         assertEquals("A2A", tableMessageList.get(1).getDescription());
         assertEquals("B2B", tableMessageList.get(2).getCode());
         assertEquals("BLA2BLA", tableMessageList.get(2).getDescription());
+    }
+
+    @Test
+    void testGetTableTickerListWhenNoRecordsThenEmptyList() throws IOException {
+        List<String> responseMessage = List.of(
+                "BEGIN LIST A1;PRIMA (0)",
+                "END LIST");
+        TradingApi api = getMockedApi(testAccountId, responseMessage);
+        TableMessage tableMessage = new TableMessage();
+        tableMessage.setCode("A1");
+        tableMessage.setDescription("PRIMA");
+        List<TableMessage> tableMessageList = api.getTableTickerList(tableMessage);
+        assertNotNull(tableMessageList);
+        assertEquals(0, tableMessageList.size());
     }
 
     @Test

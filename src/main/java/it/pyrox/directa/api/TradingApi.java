@@ -213,7 +213,12 @@ public class TradingApi extends DirectaApi {
         return response;
     }
 
-    // TODO check what is returned when no table is present
+    /**
+     * Returns the list of tables for the current account
+     *
+     * @return A list of TableMessage containing table code and description, an empty list if there are no tables
+     * @throws IOException In case of communication error
+     */
     public List<TableMessage> getTableList() throws IOException {
         TableMessageParser parser = new TableMessageParser();
         List<TableMessage> response = new ArrayList<>();
@@ -225,7 +230,16 @@ public class TradingApi extends DirectaApi {
         return response;
     }
 
-    // TODO check what is returned when no ticker is present
+    /**
+     * Returns the list of elements for a specific table. If the table doesn't exist nothing is returned by the
+     * server, so the call will end after the timeout set in the configuration
+     *
+     * @param tableName The table to get data about, with its relative code and description
+     *                  as returned by {@link #getTableList() getTableList()}
+     * @return A list of TableMessage containing ticker and description, an empty list if there are no elements in
+     *         the specified table
+     * @throws IOException In case of communication error
+     */
     public List<TableMessage> getTableTickerList(TableMessage tableName) throws IOException {
         if (tableName == null || tableName.getCode() == null || tableName.getDescription() == null) {
             throw new IllegalArgumentException("The table name must be specified with both code and description");
@@ -233,7 +247,13 @@ public class TradingApi extends DirectaApi {
         TableMessageParser parser = new TableMessageParser();
         List<TableMessage> response = new ArrayList<>();
         connectionManager.sendCommand("TABLE " + tableName.getCode() + DirectaApi.DELIMITER + tableName.getDescription());
-        List<String> messageLines = connectionManager.readDelimitedMessage("BEGIN LIST", "END LIST", false);
+        List<String> messageLines = null;
+        try {
+            messageLines = connectionManager.readDelimitedMessage("BEGIN LIST", "END LIST", false);
+        }
+        catch (SocketTimeoutException e) {
+            messageLines = new ArrayList<>();
+        }
         for (String messageLine : messageLines) {
             response.add(parser.parse(messageLine));
         }

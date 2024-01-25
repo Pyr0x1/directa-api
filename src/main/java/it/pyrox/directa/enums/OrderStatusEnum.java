@@ -23,7 +23,7 @@ public enum OrderStatusEnum {
     }
 
     public static Optional<OrderStatusEnum> decode(int code) {
-        Optional<OrderStatusEnum> optEnum = Optional.empty();
+        Optional<OrderStatusEnum> optEnum;
         optEnum = Arrays.stream(OrderStatusEnum.values())
                         .filter(e -> code == e.getCode())
                         .findFirst();
