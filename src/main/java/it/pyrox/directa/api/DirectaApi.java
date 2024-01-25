@@ -1,7 +1,6 @@
 package it.pyrox.directa.api;
 
 import it.pyrox.directa.model.StatusMessage;
-import it.pyrox.directa.parser.AvailabilityMessageParser;
 import it.pyrox.directa.parser.StatusMessageParser;
 
 import java.io.IOException;
@@ -43,11 +42,11 @@ public abstract class DirectaApi {
      * @throws IOException In case of communication error
      */
     public void closeDarwin(boolean saveDesktop) throws IOException {
-        String comamnd = "CLOSEDARWIN";
+        String command = "CLOSEDARWIN";
         if (!saveDesktop) {
-            comamnd += " FALSE";
+            command += " FALSE";
         }
-        connectionManager.sendCommand(comamnd);
+        connectionManager.sendCommand(command);
     }
 
     /**

@@ -96,51 +96,61 @@ public class TradingApiTest {
     }
 
     @Test
-    void testGetStocksInfoWhenOneRecordThenMapIt() throws IOException {
-        List<String> responseMessage = List.of("STOCK;A2A;10:40:58;4;0;4;1.2375;-1;");
+    void testGetStocksInfoWhenOneRecordThenMapIt() throws IOException, ErrorMessageException {
+        List<String> responseMessage = List.of("BEGIN STOCKLIST",
+                "STOCK;A2A;10:40:58;4;0;4;1.2375;-1;",
+                "END STOCKLIST");
         TradingApi api = getMockedApi(testAccountId, responseMessage);
-        GetStocksInfoResponse response = api.getStocksInfo();
+        List<StockMessage> response = api.getStocksInfo();
         assertNotNull(response);
-        assertNotNull(response.getStockMessageList());
-        assertEquals(1, response.getStockMessageList().size());
-        assertEquals(StockMessage.PREFIX, response.getStockMessageList().get(0).getType());
-        assertEquals("A2A", response.getStockMessageList().get(0).getTicker());
-        assertEquals("10:40:58", response.getStockMessageList().get(0).getTime());
-        assertEquals(4, response.getStockMessageList().get(0).getPortfolioAmount());
-        assertEquals("0", response.getStockMessageList().get(0).getBrokerAmount());
-        assertEquals(4, response.getStockMessageList().get(0).getTradingAmount());
-        assertEquals(1.2375, response.getStockMessageList().get(0).getAveragePrice());
-        assertEquals(-1, response.getStockMessageList().get(0).getGain());
+        assertEquals(1, response.size());
+        assertEquals(StockMessage.PREFIX, response.get(0).getType());
+        assertEquals("A2A", response.get(0).getTicker());
+        assertEquals("10:40:58", response.get(0).getTime());
+        assertEquals(4, response.get(0).getPortfolioAmount());
+        assertEquals("0", response.get(0).getBrokerAmount());
+        assertEquals(4, response.get(0).getTradingAmount());
+        assertEquals(1.2375, response.get(0).getAveragePrice());
+        assertEquals(-1, response.get(0).getGain());
     }
 
     @Test
-    void testGetStocksInfoWhenMultipleRecordsThenMapThem() throws IOException {
-        List<String> responseMessage = List.of(
+    void testGetStocksInfoWhenMultipleRecordsThenMapThem() throws IOException, ErrorMessageException {
+        List<String> responseMessage = List.of("BEGIN STOCKLIST",
                 "STOCK;A2A;10:40:58;4;0;4;1.2375;-1;",
-                "STOCK;B2B;11:41:40;5;0;5;2.3123;-1;");
+                "STOCK;B2B;11:41:40;5;0;5;2.3123;-1;",
+                "END STOCKLIST");
         TradingApi api = getMockedApi(testAccountId, responseMessage);
-        GetStocksInfoResponse response = api.getStocksInfo();
+        List<StockMessage> response = api.getStocksInfo();
         assertNotNull(response);
-        assertNotNull(response.getStockMessageList());
-        assertEquals(2, response.getStockMessageList().size());
+        assertEquals(2, response.size());
         // Record 1
-        assertEquals(StockMessage.PREFIX, response.getStockMessageList().get(0).getType());
-        assertEquals("A2A", response.getStockMessageList().get(0).getTicker());
-        assertEquals("10:40:58", response.getStockMessageList().get(0).getTime());
-        assertEquals(4, response.getStockMessageList().get(0).getPortfolioAmount());
-        assertEquals("0", response.getStockMessageList().get(0).getBrokerAmount());
-        assertEquals(4, response.getStockMessageList().get(0).getTradingAmount());
-        assertEquals(1.2375, response.getStockMessageList().get(0).getAveragePrice());
-        assertEquals(-1, response.getStockMessageList().get(0).getGain());
+        assertEquals(StockMessage.PREFIX, response.get(0).getType());
+        assertEquals("A2A", response.get(0).getTicker());
+        assertEquals("10:40:58", response.get(0).getTime());
+        assertEquals(4, response.get(0).getPortfolioAmount());
+        assertEquals("0", response.get(0).getBrokerAmount());
+        assertEquals(4, response.get(0).getTradingAmount());
+        assertEquals(1.2375, response.get(0).getAveragePrice());
+        assertEquals(-1, response.get(0).getGain());
         // Record 2
-        assertEquals(StockMessage.PREFIX, response.getStockMessageList().get(1).getType());
-        assertEquals("B2B", response.getStockMessageList().get(1).getTicker());
-        assertEquals("11:41:40", response.getStockMessageList().get(1).getTime());
-        assertEquals(5, response.getStockMessageList().get(1).getPortfolioAmount());
-        assertEquals("0", response.getStockMessageList().get(1).getBrokerAmount());
-        assertEquals(5, response.getStockMessageList().get(1).getTradingAmount());
-        assertEquals(2.3123, response.getStockMessageList().get(1).getAveragePrice());
-        assertEquals(-1, response.getStockMessageList().get(1).getGain());
+        assertEquals(StockMessage.PREFIX, response.get(1).getType());
+        assertEquals("B2B", response.get(1).getTicker());
+        assertEquals("11:41:40", response.get(1).getTime());
+        assertEquals(5, response.get(1).getPortfolioAmount());
+        assertEquals("0", response.get(1).getBrokerAmount());
+        assertEquals(5, response.get(1).getTradingAmount());
+        assertEquals(2.3123, response.get(1).getAveragePrice());
+        assertEquals(-1, response.get(1).getGain());
+    }
+
+    @Test
+    void testGetStocksInfoWhenNoRecordsThenError() throws IOException {
+        List<String> responseMessage = List.of("ERR;B2B;1018");
+        TradingApi api = getMockedApi(testAccountId, responseMessage);
+        ErrorMessageException exception = assertThrows(ErrorMessageException.class, api::getStocksInfo);
+        assertNotNull(exception);
+        assertEquals(ErrorEnum.ERR_EMPTY_STOCKLIST, exception.getError());
     }
 
     @Test
@@ -172,7 +182,9 @@ public class TradingApiTest {
 
     @Test
     void testGetOrderListWhenFilterCancelledAndOneRecordThenMapIt() throws IOException, ErrorMessageException {
-        List<String> responseMessage = List.of("ORDER;STLAM;16:20:40;ORD1;ACQAZ;4.75;0.0;10;2000");
+        List<String> responseMessage = List.of("BEGIN ORDERLIST",
+                "ORDER;STLAM;16:20:40;ORD1;ACQAZ;4.75;0.0;10;2000",
+                "END ORDERLIST");
         TradingApi api = getMockedApi(testAccountId, responseMessage);
         List<OrderMessage> orderMessageList = api.getOrderList(true, false);
         assertNotNull(orderMessageList);
@@ -190,8 +202,10 @@ public class TradingApiTest {
 
     @Test
     void testGetOrderListWhenFilterCancelledAndMultipleRecordsThenMapThem() throws IOException, ErrorMessageException {
-        List<String> responseMessage = List.of("ORDER;STLAM;16:20:40;ORD1;ACQAZ;4.75;0.0;10;2000",
-                                               "ORDER;SPAM;17:25:51;ORD2;ACQAZ;5.75;1.0;20;2005");
+        List<String> responseMessage = List.of("BEGIN ORDERLIST",
+                                               "ORDER;STLAM;16:20:40;ORD1;ACQAZ;4.75;0.0;10;2000",
+                                               "ORDER;SPAM;17:25:51;ORD2;ACQAZ;5.75;1.0;20;2005",
+                                               "END ORDERLIST");
         TradingApi api = getMockedApi(testAccountId, responseMessage);
         List<OrderMessage> orderMessageList = api.getOrderList(true, false);
         assertNotNull(orderMessageList);
@@ -240,7 +254,9 @@ public class TradingApiTest {
 
     @Test
     void testGetOrderListWithTickerWhenOneRecordThenMapIt() throws IOException, ErrorMessageException {
-        List<String> responseMessage = List.of("ORDER;STLAM;16:20:40;ORD1;ACQAZ;4.75;0.0;10;2000");
+        List<String> responseMessage = List.of("BEGIN ORDERLIST",
+                                               "ORDER;STLAM;16:20:40;ORD1;ACQAZ;4.75;0.0;10;2000",
+                                               "END ORDERLIST");
         TradingApi api = getMockedApi(testAccountId, responseMessage);
         List<OrderMessage> orderMessageList = api.getOrderList("STLAM");
         assertNotNull(orderMessageList);
@@ -258,8 +274,10 @@ public class TradingApiTest {
 
     @Test
     void testGetOrderListWithTickerWhenMultipleRecordsThenMapThem() throws IOException, ErrorMessageException {
-        List<String> responseMessage = List.of("ORDER;STLAM;16:20:40;ORD1;ACQAZ;4.75;0.0;10;2000",
-                "ORDER;STLAM;17:25:51;ORD2;ACQAZ;5.75;1.0;20;2005");
+        List<String> responseMessage = List.of("BEGIN ORDERLIST",
+                                               "ORDER;STLAM;16:20:40;ORD1;ACQAZ;4.75;0.0;10;2000",
+                                               "ORDER;STLAM;17:25:51;ORD2;ACQAZ;5.75;1.0;20;2005",
+                                               "END ORDERLIST");
         TradingApi api = getMockedApi(testAccountId, responseMessage);
         List<OrderMessage> orderMessageList = api.getOrderList("STLAM");
         assertNotNull(orderMessageList);

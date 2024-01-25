@@ -1,8 +1,5 @@
 package it.pyrox.directa.api;
 
-import it.pyrox.directa.exception.ErrorMessageException;
-import it.pyrox.directa.model.ErrorMessage;
-import it.pyrox.directa.parser.ErrorMessageParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +67,11 @@ public class DirectaApiConnectionManager {
         String buffer = null;
         List<String> lines = new ArrayList<>();
         buffer = readMessageLine();
+        // In case of error stop reading and return the error, I expect only one line with the error as first message
+        if (buffer.startsWith("ERR")) {
+            lines.add(buffer);
+            return lines;
+        }
         while (!buffer.startsWith(start)) {
             buffer = readMessageLine();
         }

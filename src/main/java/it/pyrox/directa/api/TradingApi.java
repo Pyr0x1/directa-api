@@ -33,19 +33,13 @@ public class TradingApi extends DirectaApi {
     @Override
     public void openConnection() throws IOException {
         connectionManager.openConnection(getPort());
-        // When you open the connection the trading api will send the portfolio composition
-        // So, read it so the channel is then "clear" for further commands
-        readStatus();
-        readStocksInfoResponse();
+        setConfigurationAndFlush();
     }
 
     @Override
     public void openConnection(String host, int timeout) throws IOException {
         connectionManager.openConnection(host, getPort(), timeout);
-        // When you open the connection the trading api will send the portfolio composition
-        // So, read it so the channel is then "clear" for further commands
-        readStatus();
-        readStocksInfoResponse();
+        setConfigurationAndFlush();
     }
 
     @Override
@@ -104,13 +98,25 @@ public class TradingApi extends DirectaApi {
     /**
      * Retrieves the list of stocks in the portfolio and in negotiation
      *
-     * @return A GetStockInfoResponse object containing the list of stocks,
-     * the list of orders and a list of possible errors (for example if you have no active orders)
+     * @return A list of StockMessages containing info about stocks in the portfolio
      * @throws IOException In case of communication error
+     * @throws ErrorMessageException In case of application error
      */
-    public GetStocksInfoResponse getStocksInfo() throws IOException {
+    public List<StockMessage> getStocksInfo() throws IOException, ErrorMessageException {
         connectionManager.sendCommand("INFOSTOCKS");
-        return readStocksInfoResponse();
+        List<StockMessage> stockList = new ArrayList<>();
+        List<String> messageLines = connectionManager.readDelimitedMessage("BEGIN STOCKLIST", "END STOCKLIST", false);
+        for (String messageLine : messageLines) {
+            MessageParser parser = ParserFactory.create(messageLine);
+            if (parser instanceof StockMessageParser) {
+                stockList.add(((StockMessageParser)parser).parse(messageLine));
+            }
+            else if (parser instanceof ErrorMessageParser) {
+                ErrorMessage errorMessage = ((ErrorMessageParser) parser).parse(messageLine);
+                throw new ErrorMessageException(errorMessage.getError());
+            }
+        }
+        return stockList;
     }
 
     /**
@@ -164,22 +170,18 @@ public class TradingApi extends DirectaApi {
         else {
             connectionManager.sendCommand("ORDERLIST");
         }
-        try {
-            while (true) {
-                String messageLine = connectionManager.readMessageLine();
-                MessageParser parser = ParserFactory.create(messageLine);
-                if (parser instanceof OrderMessageParser) {
-                    response.add(((OrderMessageParser)parser).parse(messageLine));
-                }
-                else if (parser instanceof ErrorMessageParser) {
-                    ErrorMessage errorMessage = ((ErrorMessageParser) parser).parse(messageLine);
-                    throw new ErrorMessageException(errorMessage.getError());
-                }
+        List<String> messageLines = connectionManager.readDelimitedMessage("BEGIN ORDERLIST", "END ORDERLIST", false);
+        for (String messageLine : messageLines) {
+            MessageParser parser = ParserFactory.create(messageLine);
+            if (parser instanceof OrderMessageParser) {
+                response.add(((OrderMessageParser)parser).parse(messageLine));
             }
-        } catch (SocketTimeoutException e) {
-            // Break the loop in case of socket timeout, must do this
-            // because I do not know beforehand how many lines to read
+            else if (parser instanceof ErrorMessageParser) {
+                ErrorMessage errorMessage = ((ErrorMessageParser) parser).parse(messageLine);
+                throw new ErrorMessageException(errorMessage.getError());
+            }
         }
+
         return response;
     }
 
@@ -194,22 +196,18 @@ public class TradingApi extends DirectaApi {
     public List<OrderMessage> getOrderList(String ticker) throws IOException, ErrorMessageException {
         List<OrderMessage> response = new ArrayList<>();
         connectionManager.sendCommand("ORDERLIST " + ticker);
-        try {
-            while (true) {
-                String messageLine = connectionManager.readMessageLine();
-                MessageParser parser = ParserFactory.create(messageLine);
-                if (parser instanceof OrderMessageParser) {
-                    response.add(((OrderMessageParser)parser).parse(messageLine));
-                }
-                else if (parser instanceof ErrorMessageParser) {
-                    ErrorMessage errorMessage = ((ErrorMessageParser) parser).parse(messageLine);
-                    throw new ErrorMessageException(errorMessage.getError());
-                }
+        List<String> messageLines = connectionManager.readDelimitedMessage("BEGIN ORDERLIST", "END ORDERLIST", false);
+        for (String messageLine : messageLines) {
+            MessageParser parser = ParserFactory.create(messageLine);
+            if (parser instanceof OrderMessageParser) {
+                response.add(((OrderMessageParser)parser).parse(messageLine));
             }
-        } catch (SocketTimeoutException e) {
-            // Break the loop in case of socket timeout, must do this
-            // because I do not know beforehand how many lines to read
+            else if (parser instanceof ErrorMessageParser) {
+                ErrorMessage errorMessage = ((ErrorMessageParser) parser).parse(messageLine);
+                throw new ErrorMessageException(errorMessage.getError());
+            }
         }
+
         return response;
     }
 
@@ -260,26 +258,15 @@ public class TradingApi extends DirectaApi {
         return response;
     }
 
-    private GetStocksInfoResponse readStocksInfoResponse() throws IOException {
-        GetStocksInfoResponse response = new GetStocksInfoResponse();
-        try {
-            while (true) {
-                String messageLine = connectionManager.readMessageLine();
-                MessageParser parser = ParserFactory.create(messageLine);
-                if (parser instanceof StockMessageParser) {
-                    response.getStockMessageList().add(((StockMessageParser) parser).parse(messageLine));
-                }
-                else if (parser instanceof OrderMessageParser) {
-                    response.getOrderMessageList().add(((OrderMessageParser) parser).parse(messageLine));
-                }
-                else if (parser instanceof ErrorMessageParser) {
-                    response.getErrorMessageList().add(((ErrorMessageParser) parser).parse(messageLine));
-                }
-            }
-        } catch (SocketTimeoutException e) {
-            // Break the loop in case of socket timeout, must do this
-            // because I do not know beforehand how many lines to read
-        }
-        return response;
+    private void setConfigurationAndFlush() throws IOException {
+        // Set the flowpoint to true so order and stock list operations will have delimiters
+        connectionManager.sendCommand("FLOWPOINT TRUE");
+        String messageLine = "";
+        // Read everything in the buffer until the response related to the flowpoint command.
+        // This will flush the portfolio information that will be sent by the server
+        // when a connection is established
+        do {
+            messageLine = connectionManager.readMessageLine();
+        } while (!messageLine.startsWith("FLOWPOINT"));
     }
 }
