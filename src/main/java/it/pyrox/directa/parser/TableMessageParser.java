@@ -11,9 +11,9 @@ public class TableMessageParser {
 
     public TableMessage parse(String messageLine) {
         TableMessage tableMessage = new TableMessage();
-        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER);
+        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER_SEMICOLON);
         if (tokenizer.countTokens() != getTokenCount()) {
-            throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER);
+            throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER_SEMICOLON);
         }
         int tokenCounter = 0;
         while (tokenizer.hasMoreTokens()) {

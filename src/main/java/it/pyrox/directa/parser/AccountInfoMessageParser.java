@@ -14,9 +14,9 @@ public class AccountInfoMessageParser implements MessageParser {
     @Override
     public AccountInfoMessage parse(String messageLine) {
         AccountInfoMessage accountInfoMessage = new AccountInfoMessage();
-        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER);
+        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER_SEMICOLON);
         if (tokenizer.countTokens() != getTokenCount()) {
-            throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER);
+            throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER_SEMICOLON);
         }
         int tokenCounter = 0;
         while (tokenizer.hasMoreTokens()) {

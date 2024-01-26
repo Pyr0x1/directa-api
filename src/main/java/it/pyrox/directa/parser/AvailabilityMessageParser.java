@@ -3,8 +3,6 @@ package it.pyrox.directa.parser;
 import it.pyrox.directa.api.DirectaApi;
 import it.pyrox.directa.enums.ApiEnum;
 import it.pyrox.directa.model.AvailabilityMessage;
-import it.pyrox.directa.model.Message;
-import it.pyrox.directa.model.OrderMessage;
 
 import java.util.Optional;
 import java.util.StringTokenizer;
@@ -16,9 +14,9 @@ public class AvailabilityMessageParser implements MessageParser {
     @Override
     public AvailabilityMessage parse(String messageLine) {
         AvailabilityMessage availabilityMessage = new AvailabilityMessage();
-        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER);
+        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER_SEMICOLON);
         if (tokenizer.countTokens() != getTokenCount()) {
-            throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER);
+            throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER_SEMICOLON);
         }
         int tokenCounter = 0;
         while (tokenizer.hasMoreTokens()) {

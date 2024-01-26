@@ -1,5 +1,6 @@
 package it.pyrox.directa.parser;
 
+import it.pyrox.directa.enums.TradingMessageTypeEnum;
 import it.pyrox.directa.model.*;
 
 public class ParserFactory {
@@ -26,6 +27,11 @@ public class ParserFactory {
         }
         else if (messageLine.startsWith(AccountInfoMessage.PREFIX)) {
             parser = new AccountInfoMessageParser();
+        }
+        else if (messageLine.startsWith(TradingMessageTypeEnum.TRADOK.name()) ||
+                 messageLine.startsWith(TradingMessageTypeEnum.TRADERR.name()) ||
+                 messageLine.startsWith(TradingMessageTypeEnum.TRADCONFIRM.name())) {
+            parser = new TradingMessageParser();
         }
 
         return parser;

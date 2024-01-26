@@ -1,7 +1,6 @@
 package it.pyrox.directa.parser;
 
 import it.pyrox.directa.api.DirectaApi;
-import it.pyrox.directa.api.DirectaApiConnectionManager;
 import it.pyrox.directa.enums.ApiEnum;
 import it.pyrox.directa.model.PortMappingMessage;
 
@@ -14,9 +13,9 @@ public class PortMappingMessageParser {
 
     public PortMappingMessage parse(String messageLine) {
         PortMappingMessage portMappingMessage = new PortMappingMessage();
-        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER);
+        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER_SEMICOLON);
         if (tokenizer.countTokens() != getTokenCount(portMappingMessage)) {
-            throw new IllegalArgumentException("The message must contain " + getTokenCount(portMappingMessage) + " elements separated by " + DirectaApi.DELIMITER);
+            throw new IllegalArgumentException("The message must contain " + getTokenCount(portMappingMessage) + " elements separated by " + DirectaApi.DELIMITER_SEMICOLON);
         }
         int tokenCounter = 0;
         while (tokenizer.hasMoreTokens()) {

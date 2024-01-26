@@ -3,9 +3,7 @@ package it.pyrox.directa.parser;
 import it.pyrox.directa.api.DirectaApi;
 import it.pyrox.directa.enums.ApiEnum;
 import it.pyrox.directa.enums.ErrorEnum;
-import it.pyrox.directa.model.AvailabilityMessage;
 import it.pyrox.directa.model.ErrorMessage;
-import it.pyrox.directa.model.Message;
 
 import java.util.Optional;
 import java.util.StringTokenizer;
@@ -17,9 +15,9 @@ public class ErrorMessageParser implements MessageParser {
     @Override
     public ErrorMessage parse(String messageLine) {
         ErrorMessage errorMessage = new ErrorMessage();
-        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER);
+        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER_SEMICOLON);
         if (tokenizer.countTokens() != getTokenCount()) {
-            throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER);
+            throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER_SEMICOLON);
         }
         int tokenCounter = 0;
         while (tokenizer.hasMoreTokens()) {

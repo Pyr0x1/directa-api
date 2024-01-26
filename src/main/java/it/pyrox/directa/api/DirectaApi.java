@@ -8,7 +8,10 @@ import java.io.IOException;
 public abstract class DirectaApi {
 
     protected final DirectaApiConnectionManager connectionManager;
-    public static final String DELIMITER = ";";
+
+    public static final String DELIMITER_SEMICOLON = ";";
+    public static final String DELIMITER_COMMA = ",";
+    public static final String DELIMITER_SPACE = " ";
     public static final String HEARTBEAT = "H";
     protected String accountId;
 

@@ -1,5 +1,6 @@
 package it.pyrox.directa.api;
 
+import it.pyrox.directa.enums.OrderActionEnum;
 import it.pyrox.directa.exception.ErrorMessageException;
 import it.pyrox.directa.model.*;
 import it.pyrox.directa.parser.*;
@@ -59,7 +60,7 @@ public class TradingApi extends DirectaApi {
         connectionManager.sendCommand("SETCONNECTION");
         List<String> messageLines = connectionManager.readDelimitedMessage("BEGIN PORT", "END PORT", false);
         for (String messageLine : messageLines) {
-            String accountId = messageLine.split(DELIMITER)[0];
+            String accountId = messageLine.split(DELIMITER_SEMICOLON)[0];
             if (super.accountId.equals(accountId)) {
                 portMapping = parser.parse(messageLine);
             }
@@ -244,7 +245,7 @@ public class TradingApi extends DirectaApi {
         }
         TableMessageParser parser = new TableMessageParser();
         List<TableMessage> response = new ArrayList<>();
-        connectionManager.sendCommand("TABLE " + tableName.getCode() + DirectaApi.DELIMITER + tableName.getDescription());
+        connectionManager.sendCommand("TABLE " + tableName.getCode() + DirectaApi.DELIMITER_SEMICOLON + tableName.getDescription());
         List<String> messageLines = null;
         try {
             messageLines = connectionManager.readDelimitedMessage("BEGIN LIST", "END LIST", false);
@@ -254,6 +255,30 @@ public class TradingApi extends DirectaApi {
         }
         for (String messageLine : messageLines) {
             response.add(parser.parse(messageLine));
+        }
+        return response;
+    }
+
+    public TradingMessage buyAtLimitPrice(String orderId, String ticker, int amount, double price) throws IOException, ErrorMessageException {
+        if (orderId == null || ticker == null || amount == 0 || price == 0) {
+            throw new IllegalArgumentException("Order id and ticker cannot be null and you must specify amount and price");
+        }
+        TradingMessage response = null;
+        String args = String.join(DirectaApi.DELIMITER_COMMA,
+                                     orderId,
+                                     ticker,
+                                     Integer.toString(amount),
+                                     Double.toString(price));
+        String command = String.join(DirectaApi.DELIMITER_SPACE, OrderActionEnum.ACQAZ.name(), args);
+        connectionManager.sendCommand(command);
+        String messageLine = connectionManager.readMessageLine();
+        MessageParser parser = ParserFactory.create(messageLine);
+        if (parser instanceof TradingMessageParser) {
+            response = ((TradingMessageParser)parser).parse(messageLine);
+        }
+        else if (parser instanceof ErrorMessageParser) {
+            ErrorMessage errorMessage = ((ErrorMessageParser) parser).parse(messageLine);
+            throw new ErrorMessageException(errorMessage.getError());
         }
         return response;
     }

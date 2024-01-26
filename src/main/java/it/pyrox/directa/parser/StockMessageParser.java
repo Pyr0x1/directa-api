@@ -1,9 +1,7 @@
 package it.pyrox.directa.parser;
 
 import it.pyrox.directa.api.DirectaApi;
-import it.pyrox.directa.api.DirectaApiConnectionManager;
 import it.pyrox.directa.enums.ApiEnum;
-import it.pyrox.directa.model.Message;
 import it.pyrox.directa.model.StockMessage;
 
 import java.util.Optional;
@@ -16,9 +14,9 @@ public class StockMessageParser implements MessageParser {
     @Override
     public StockMessage parse(String messageLine) {
         StockMessage stockMessage = new StockMessage();
-        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER);
+        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER_SEMICOLON);
         if (tokenizer.countTokens() != getTokenCount()) {
-            throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER);
+            throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER_SEMICOLON);
         }
         int tokenCounter = 0;
         while (tokenizer.hasMoreTokens()) {

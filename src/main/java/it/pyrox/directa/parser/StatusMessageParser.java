@@ -1,10 +1,8 @@
 package it.pyrox.directa.parser;
 
 import it.pyrox.directa.api.DirectaApi;
-import it.pyrox.directa.api.DirectaApiConnectionManager;
 import it.pyrox.directa.enums.ApiEnum;
 import it.pyrox.directa.enums.ConnectionStatusEnum;
-import it.pyrox.directa.model.Message;
 import it.pyrox.directa.model.StatusMessage;
 
 import java.util.Optional;
@@ -17,9 +15,9 @@ public class StatusMessageParser implements MessageParser {
     @Override
     public StatusMessage parse(String messageLine) {
         StatusMessage statusMessage = new StatusMessage();
-        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER);
+        StringTokenizer tokenizer = new StringTokenizer(messageLine, DirectaApi.DELIMITER_SEMICOLON);
         if (tokenizer.countTokens() != getTokenCount()) {
-            throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER);
+            throw new IllegalArgumentException("The message must contain " + getTokenCount() + " elements separated by " + DirectaApi.DELIMITER_SEMICOLON);
         }
         int tokenCounter = 0;
         while (tokenizer.hasMoreTokens()) {
