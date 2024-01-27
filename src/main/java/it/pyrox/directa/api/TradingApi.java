@@ -262,14 +262,57 @@ public class TradingApi extends DirectaApi {
     }
 
     public TradingMessage buyAtLimitPrice(String orderId, String ticker, int amount, double price) throws IOException, ErrorMessageException {
+        return buyOrSellGenericCall(OrderActionEnum.ACQAZ, orderId, ticker, amount, price, null);
+    }
+
+    public TradingMessage sellAtLimitPrice(String orderId, String ticker, int amount, double price) throws IOException, ErrorMessageException {
+        return buyOrSellGenericCall(OrderActionEnum.VENAZ, orderId, ticker, amount, price, null);
+    }
+
+    public TradingMessage buyAtMarketPrice(String orderId, String ticker, int amount) throws IOException, ErrorMessageException {
+        return buyOrSellGenericCall(OrderActionEnum.ACQMARKET, orderId, ticker, amount, null, null);
+    }
+
+    public TradingMessage sellAtMarketPrice(String orderId, String ticker, int amount) throws IOException, ErrorMessageException {
+        return buyOrSellGenericCall(OrderActionEnum.VENMARKET, orderId, ticker, amount, null, null);
+    }
+
+    public TradingMessage buyWithStopTrigger(String orderId, String ticker, int amount, double trigger) throws IOException, ErrorMessageException {
+        return buyOrSellGenericCall(OrderActionEnum.ACQSTOP, orderId, ticker, amount, null, trigger);
+    }
+
+    public TradingMessage sellWithStopTrigger(String orderId, String ticker, int amount, double trigger) throws IOException, ErrorMessageException {
+        return buyOrSellGenericCall(OrderActionEnum.VENSTOP, orderId, ticker, amount, null, trigger);
+    }
+
+    public TradingMessage buyAtLimitPriceWithStopTrigger(String orderId, String ticker, int amount, double price, double trigger) throws IOException, ErrorMessageException {
+        return buyOrSellGenericCall(OrderActionEnum.ACQSTOPLIMIT, orderId, ticker, amount, price, trigger);
+    }
+
+    public TradingMessage sellAtLimitPriceWithStopTrigger(String orderId, String ticker, int amount, double price, double trigger) throws IOException, ErrorMessageException {
+        return buyOrSellGenericCall(OrderActionEnum.VENSTOPLIMIT, orderId, ticker, amount, price, trigger);
+    }
+
+    private TradingMessage buyOrSellGenericCall(OrderActionEnum action, String orderId, String ticker, Integer amount, Double price, Double trigger) throws IOException, ErrorMessageException {
         // Don't perform input validation because the server will do it and send an error if the command isn't compliant
         TradingMessage response = null;
+        // These arguments are always needed, so join them, if one is missing there will be an error
         String args = String.join(DirectaApi.DELIMITER_COMMA,
-                                  Optional.ofNullable(orderId).orElse(DirectaApi.EMPTY_STRING),
-                                  Optional.ofNullable(ticker).orElse(DirectaApi.EMPTY_STRING),
-                                  Integer.toString(amount),
-                                  Double.toString(price));
-        String command = String.join(DirectaApi.DELIMITER_SPACE, OrderActionEnum.ACQAZ.name(), args);
+                      Optional.ofNullable(orderId).orElse(DirectaApi.EMPTY_STRING),
+                      Optional.ofNullable(ticker).orElse(DirectaApi.EMPTY_STRING),
+                      Optional.ofNullable(amount).isEmpty() ? DirectaApi.EMPTY_STRING : Integer.toString(amount));
+        // These arguments depend on the action, so join them only if present.
+        // The public methods will have these arguments as primitives, so they will need to be specified by the user.
+        // Be careful to observe this detail otherwise something unexpected may happen, for example calling the method
+        // to place a stop order passing the trigger value as null would place a market order
+        // (this could also be an acceptable design, as of now a more explicit solution is preferred)
+        if (price != null) {
+            args = String.join(DirectaApi.DELIMITER_COMMA, args, Double.toString(price));
+        }
+        if (trigger != null) {
+            args = String.join(DirectaApi.DELIMITER_COMMA, args, Double.toString(trigger));
+        }
+        String command = String.join(DirectaApi.DELIMITER_SPACE, action.name(), args);
         connectionManager.sendCommand(command);
         String messageLine = connectionManager.readMessageLine();
         MessageParser parser = ParserFactory.create(messageLine);
