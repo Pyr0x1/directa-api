@@ -4,8 +4,6 @@ import it.pyrox.directa.enums.ErrorEnum;
 
 public class ErrorMessage extends Message {
 
-    public static final String PREFIX = "ERR";
-
     private String ticker;
 
     private ErrorEnum error;

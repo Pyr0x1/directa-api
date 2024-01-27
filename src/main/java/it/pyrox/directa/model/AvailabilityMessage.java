@@ -2,7 +2,6 @@ package it.pyrox.directa.model;
 
 public class AvailabilityMessage extends Message {
 
-    public static final String PREFIX = "AVAILABILITY";
     private String time;
     private int stocksAvailability;
     private int stocksAvailabilityWithLeverage;

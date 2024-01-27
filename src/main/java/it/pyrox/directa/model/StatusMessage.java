@@ -4,8 +4,6 @@ import it.pyrox.directa.enums.ConnectionStatusEnum;
 
 public class StatusMessage extends Message {
 
-    public static final String PREFIX = "DARWIN_STATUS";
-
     private ConnectionStatusEnum connectionStatus;
 
     private boolean isDatafeedEnabled;

@@ -1,9 +1,6 @@
 package it.pyrox.directa.api;
 
-import it.pyrox.directa.enums.ConnectionStatusEnum;
-import it.pyrox.directa.enums.ErrorEnum;
-import it.pyrox.directa.enums.OrderActionEnum;
-import it.pyrox.directa.enums.OrderStatusEnum;
+import it.pyrox.directa.enums.*;
 import it.pyrox.directa.exception.ErrorMessageException;
 import it.pyrox.directa.model.*;
 import org.junit.jupiter.api.Test;
@@ -69,7 +66,7 @@ public class TradingApiTest {
         TradingApi api = getMockedApi(testAccountId, responseMessage);
         AccountInfoMessage accountInfoMessage = api.getAccountInfo();
         assertNotNull(accountInfoMessage);
-        assertEquals(AccountInfoMessage.PREFIX, accountInfoMessage.getType());
+        assertEquals(MessageTypeEnum.INFOACCOUNT, accountInfoMessage.getType());
         assertEquals("12:49:11", accountInfoMessage.getTime());
         assertEquals("B5678", accountInfoMessage.getAccountId());
         assertEquals(150000.50, accountInfoMessage.getLiquidity());
@@ -86,7 +83,7 @@ public class TradingApiTest {
         TradingApi api = getMockedApi(testAccountId, responseMessage);
         AvailabilityMessage response = api.getAvailabilityInfo();
         assertNotNull(response);
-        assertEquals(AvailabilityMessage.PREFIX, response.getType());
+        assertEquals(MessageTypeEnum.AVAILABILITY, response.getType());
         assertEquals("14:47:04", response.getTime());
         assertEquals(1000, response.getStocksAvailability());
         assertEquals(5000, response.getStocksAvailabilityWithLeverage());
@@ -104,7 +101,7 @@ public class TradingApiTest {
         List<StockMessage> response = api.getStocksInfo();
         assertNotNull(response);
         assertEquals(1, response.size());
-        assertEquals(StockMessage.PREFIX, response.get(0).getType());
+        assertEquals(MessageTypeEnum.STOCK, response.get(0).getType());
         assertEquals("A2A", response.get(0).getTicker());
         assertEquals("10:40:58", response.get(0).getTime());
         assertEquals(4, response.get(0).getPortfolioAmount());
@@ -125,7 +122,7 @@ public class TradingApiTest {
         assertNotNull(response);
         assertEquals(2, response.size());
         // Record 1
-        assertEquals(StockMessage.PREFIX, response.get(0).getType());
+        assertEquals(MessageTypeEnum.STOCK, response.get(0).getType());
         assertEquals("A2A", response.get(0).getTicker());
         assertEquals("10:40:58", response.get(0).getTime());
         assertEquals(4, response.get(0).getPortfolioAmount());
@@ -134,7 +131,7 @@ public class TradingApiTest {
         assertEquals(1.2375, response.get(0).getAveragePrice());
         assertEquals(-1, response.get(0).getGain());
         // Record 2
-        assertEquals(StockMessage.PREFIX, response.get(1).getType());
+        assertEquals(MessageTypeEnum.STOCK, response.get(1).getType());
         assertEquals("B2B", response.get(1).getTicker());
         assertEquals("11:41:40", response.get(1).getTime());
         assertEquals(5, response.get(1).getPortfolioAmount());
@@ -159,7 +156,7 @@ public class TradingApiTest {
         TradingApi api = getMockedApi(testAccountId, responseMessage);
         StockMessage stockMessage = api.getPosition("A2A");
         assertNotNull(stockMessage);
-        assertEquals(StockMessage.PREFIX, stockMessage.getType());
+        assertEquals(MessageTypeEnum.STOCK, stockMessage.getType());
         assertEquals("B2B", stockMessage.getTicker());
         assertEquals("11:41:40", stockMessage.getTime());
         assertEquals(5, stockMessage.getPortfolioAmount());
@@ -189,7 +186,7 @@ public class TradingApiTest {
         List<OrderMessage> orderMessageList = api.getOrderList(true, false);
         assertNotNull(orderMessageList);
         assertEquals(1, orderMessageList.size());
-        assertEquals(OrderMessage.PREFIX, orderMessageList.get(0).getType());
+        assertEquals(MessageTypeEnum.ORDER, orderMessageList.get(0).getType());
         assertEquals("STLAM", orderMessageList.get(0).getTicker());
         assertEquals("16:20:40", orderMessageList.get(0).getTime());
         assertEquals("ORD1", orderMessageList.get(0).getOrderId());
@@ -211,7 +208,7 @@ public class TradingApiTest {
         assertNotNull(orderMessageList);
         assertEquals(2, orderMessageList.size());
         // Record 1
-        assertEquals(OrderMessage.PREFIX, orderMessageList.get(0).getType());
+        assertEquals(MessageTypeEnum.ORDER, orderMessageList.get(0).getType());
         assertEquals("STLAM", orderMessageList.get(0).getTicker());
         assertEquals("16:20:40", orderMessageList.get(0).getTime());
         assertEquals("ORD1", orderMessageList.get(0).getOrderId());
@@ -221,7 +218,7 @@ public class TradingApiTest {
         assertEquals(10, orderMessageList.get(0).getAmount());
         assertEquals(OrderStatusEnum.IN_NEGOTIATION, orderMessageList.get(0).getOrderStatus());
         // Record 2
-        assertEquals(OrderMessage.PREFIX, orderMessageList.get(1).getType());
+        assertEquals(MessageTypeEnum.ORDER, orderMessageList.get(1).getType());
         assertEquals("SPAM", orderMessageList.get(1).getTicker());
         assertEquals("17:25:51", orderMessageList.get(1).getTime());
         assertEquals("ORD2", orderMessageList.get(1).getOrderId());
@@ -261,7 +258,7 @@ public class TradingApiTest {
         List<OrderMessage> orderMessageList = api.getOrderList("STLAM");
         assertNotNull(orderMessageList);
         assertEquals(1, orderMessageList.size());
-        assertEquals(OrderMessage.PREFIX, orderMessageList.get(0).getType());
+        assertEquals(MessageTypeEnum.ORDER, orderMessageList.get(0).getType());
         assertEquals("STLAM", orderMessageList.get(0).getTicker());
         assertEquals("16:20:40", orderMessageList.get(0).getTime());
         assertEquals("ORD1", orderMessageList.get(0).getOrderId());
@@ -283,7 +280,7 @@ public class TradingApiTest {
         assertNotNull(orderMessageList);
         assertEquals(2, orderMessageList.size());
         // Record 1
-        assertEquals(OrderMessage.PREFIX, orderMessageList.get(0).getType());
+        assertEquals(MessageTypeEnum.ORDER, orderMessageList.get(0).getType());
         assertEquals("STLAM", orderMessageList.get(0).getTicker());
         assertEquals("16:20:40", orderMessageList.get(0).getTime());
         assertEquals("ORD1", orderMessageList.get(0).getOrderId());
@@ -293,7 +290,7 @@ public class TradingApiTest {
         assertEquals(10, orderMessageList.get(0).getAmount());
         assertEquals(OrderStatusEnum.IN_NEGOTIATION, orderMessageList.get(0).getOrderStatus());
         // Record 2
-        assertEquals(OrderMessage.PREFIX, orderMessageList.get(1).getType());
+        assertEquals(MessageTypeEnum.ORDER, orderMessageList.get(1).getType());
         assertEquals("STLAM", orderMessageList.get(1).getTicker());
         assertEquals("17:25:51", orderMessageList.get(1).getTime());
         assertEquals("ORD2", orderMessageList.get(1).getOrderId());
@@ -414,7 +411,7 @@ public class TradingApiTest {
         TradingApi api = getMockedApi(testAccountId, responseMessage);
         StatusMessage response = api.getStatus();
         assertNotNull(response);
-        assertEquals(StatusMessage.PREFIX, response.getType());
+        assertEquals(MessageTypeEnum.DARWIN_STATUS, response.getType());
         assertEquals(ConnectionStatusEnum.CONN_OK, response.getConnectionStatus());
         assertTrue(response.isDatafeedEnabled());
         assertEquals("Release 1.2.1 build 01/08/2020 14:10:00 more info at http://app1.directatrading.com/trading-api-directa/index.html", response.getRelease());

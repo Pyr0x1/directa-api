@@ -2,6 +2,7 @@ package it.pyrox.directa.parser;
 
 import it.pyrox.directa.api.DirectaApi;
 import it.pyrox.directa.enums.ApiEnum;
+import it.pyrox.directa.enums.MessageTypeEnum;
 import it.pyrox.directa.model.AvailabilityMessage;
 
 import java.util.Optional;
@@ -25,7 +26,8 @@ public class AvailabilityMessageParser implements MessageParser {
             String trimmedToken = token.trim();
             switch (tokenCounter) {
                 case 0:
-                    availabilityMessage.setType(trimmedToken);
+                    Optional<MessageTypeEnum> optType = MessageTypeEnum.decode(trimmedToken);
+                    availabilityMessage.setType(optType.orElse(null));
                     break;
                 case 1:
                     availabilityMessage.setTime(trimmedToken);

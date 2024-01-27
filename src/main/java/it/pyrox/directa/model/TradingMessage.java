@@ -2,11 +2,9 @@ package it.pyrox.directa.model;
 
 import it.pyrox.directa.enums.OrderActionEnum;
 import it.pyrox.directa.enums.TradingMessageCodeEnum;
-import it.pyrox.directa.enums.TradingMessageTypeEnum;
 
 public class TradingMessage extends Message {
 
-    private TradingMessageTypeEnum typeEnum;
     private String ticker;
     private String orderId;
     private TradingMessageCodeEnum code;
@@ -14,17 +12,6 @@ public class TradingMessage extends Message {
     private int amount;
     private double price;
     private String errorDescription;
-
-    public TradingMessageTypeEnum getTypeEnum() {
-        return typeEnum;
-    }
-
-    public void setTypeEnum(TradingMessageTypeEnum typeEnum) {
-        this.typeEnum = typeEnum;
-        if (typeEnum != null) {
-            this.type = typeEnum.name();
-        }
-    }
 
     public String getTicker() {
         return ticker;
@@ -85,7 +72,7 @@ public class TradingMessage extends Message {
     @Override
     public String toString() {
         return "TradingMessage{" +
-                "type=" + typeEnum.name() +
+                "type=" + type +
                 ", ticker='" + ticker + '\'' +
                 ", orderId='" + orderId + '\'' +
                 ", code=" + code +

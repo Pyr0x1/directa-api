@@ -3,7 +3,7 @@ package it.pyrox.directa.parser;
 import it.pyrox.directa.api.DirectaApi;
 import it.pyrox.directa.enums.OrderActionEnum;
 import it.pyrox.directa.enums.TradingMessageCodeEnum;
-import it.pyrox.directa.enums.TradingMessageTypeEnum;
+import it.pyrox.directa.enums.MessageTypeEnum;
 import it.pyrox.directa.model.TradingMessage;
 
 import java.util.Optional;
@@ -26,8 +26,8 @@ public class TradingMessageParser implements MessageParser {
             String trimmedToken = token.trim();
             switch (tokenCounter) {
                 case 0:
-                    Optional<TradingMessageTypeEnum> optionalType = TradingMessageTypeEnum.decode(trimmedToken);
-                    tradingMessage.setTypeEnum(optionalType.orElse(null));
+                    Optional<MessageTypeEnum> optType = MessageTypeEnum.decode(trimmedToken);
+                    tradingMessage.setType(optType.orElse(null));
                     break;
                 case 1:
                     tradingMessage.setTicker(trimmedToken);

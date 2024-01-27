@@ -1,14 +1,16 @@
 package it.pyrox.directa.model;
 
+import it.pyrox.directa.enums.MessageTypeEnum;
+
 public class Message {
 
-    protected String type;
+    protected MessageTypeEnum type;
 
-    public String getType() {
+    public MessageTypeEnum getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(MessageTypeEnum type) {
         this.type = type;
     }
 }

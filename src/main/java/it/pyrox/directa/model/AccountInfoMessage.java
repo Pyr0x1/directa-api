@@ -2,8 +2,6 @@ package it.pyrox.directa.model;
 
 public class AccountInfoMessage extends Message {
 
-    public static final String PREFIX = "INFOACCOUNT";
-
     private String time;
     private String accountId;
     private double liquidity;

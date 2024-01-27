@@ -2,7 +2,6 @@ package it.pyrox.directa.model;
 
 public class StockMessage extends Message {
 
-    public static final String PREFIX = "STOCK";
     private String ticker;
     private String time;
     private int portfolioAmount;

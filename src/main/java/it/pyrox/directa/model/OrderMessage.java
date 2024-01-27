@@ -4,7 +4,7 @@ import it.pyrox.directa.enums.OrderActionEnum;
 import it.pyrox.directa.enums.OrderStatusEnum;
 
 public class OrderMessage extends Message {
-    public static final String PREFIX = "ORDER";
+
     private String ticker;
     private String time;
     private String orderId;

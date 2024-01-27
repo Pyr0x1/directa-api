@@ -3,6 +3,7 @@ package it.pyrox.directa.parser;
 import it.pyrox.directa.api.DirectaApi;
 import it.pyrox.directa.enums.ApiEnum;
 import it.pyrox.directa.enums.ErrorEnum;
+import it.pyrox.directa.enums.MessageTypeEnum;
 import it.pyrox.directa.model.ErrorMessage;
 
 import java.util.Optional;
@@ -26,7 +27,8 @@ public class ErrorMessageParser implements MessageParser {
             String trimmedToken = token.trim();
             switch (tokenCounter) {
                 case 0:
-                    errorMessage.setType(trimmedToken);
+                    Optional<MessageTypeEnum> optType = MessageTypeEnum.decode(trimmedToken);
+                    errorMessage.setType(optType.orElse(null));
                     break;
                 case 1:
                     errorMessage.setTicker(trimmedToken);

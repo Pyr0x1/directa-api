@@ -1,10 +1,11 @@
 package it.pyrox.directa.parser;
 
 import it.pyrox.directa.api.DirectaApi;
+import it.pyrox.directa.enums.ApiEnum;
+import it.pyrox.directa.enums.MessageTypeEnum;
 import it.pyrox.directa.enums.OrderActionEnum;
 import it.pyrox.directa.enums.OrderStatusEnum;
 import it.pyrox.directa.model.OrderMessage;
-import it.pyrox.directa.enums.ApiEnum;
 
 import java.util.Optional;
 import java.util.StringTokenizer;
@@ -27,7 +28,8 @@ public class OrderMessageParser implements MessageParser {
             String trimmedToken = token.trim();
             switch (tokenCounter) {
                 case 0:
-                    orderMessage.setType(trimmedToken);
+                    Optional<MessageTypeEnum> optType = MessageTypeEnum.decode(trimmedToken);
+                    orderMessage.setType(optType.orElse(null));
                     break;
                 case 1:
                     orderMessage.setTicker(trimmedToken);

@@ -3,6 +3,7 @@ package it.pyrox.directa.parser;
 import it.pyrox.directa.api.DirectaApi;
 import it.pyrox.directa.enums.ApiEnum;
 import it.pyrox.directa.enums.ConnectionStatusEnum;
+import it.pyrox.directa.enums.MessageTypeEnum;
 import it.pyrox.directa.model.StatusMessage;
 
 import java.util.Optional;
@@ -26,7 +27,8 @@ public class StatusMessageParser implements MessageParser {
             String trimmedToken = token.trim();
             switch (tokenCounter) {
                 case 0:
-                    statusMessage.setType(trimmedToken);
+                    Optional<MessageTypeEnum> optType = MessageTypeEnum.decode(trimmedToken);
+                    statusMessage.setType(optType.orElse(null));
                     break;
                 case 1:
                     Optional<ConnectionStatusEnum> optEnum = ConnectionStatusEnum.decode(trimmedToken);
