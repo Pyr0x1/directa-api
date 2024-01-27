@@ -1,9 +1,10 @@
 package it.pyrox.directa.parser;
 
 import it.pyrox.directa.api.DirectaApi;
+import it.pyrox.directa.enums.ErrorEnum;
+import it.pyrox.directa.enums.MessageTypeEnum;
 import it.pyrox.directa.enums.OrderActionEnum;
 import it.pyrox.directa.enums.TradingMessageCodeEnum;
-import it.pyrox.directa.enums.MessageTypeEnum;
 import it.pyrox.directa.model.TradingMessage;
 
 import java.util.Optional;
@@ -38,6 +39,8 @@ public class TradingMessageParser implements MessageParser {
                 case 3:
                     Optional<TradingMessageCodeEnum> optionalCode = TradingMessageCodeEnum.decode(Integer.parseInt(trimmedToken));
                     tradingMessage.setCode(optionalCode.orElse(null));
+                    Optional<ErrorEnum> optionalErrorCode = ErrorEnum.decode(Integer.parseInt(trimmedToken));
+                    tradingMessage.setErrorCode(optionalErrorCode.orElse(null));
                     break;
                 case 4:
                     Optional<OrderActionEnum> optActionEnum = OrderActionEnum.decode(trimmedToken);

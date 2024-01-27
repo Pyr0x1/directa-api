@@ -2,6 +2,7 @@ package it.pyrox.directa.enums;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public enum ErrorEnum {
@@ -65,10 +66,9 @@ public enum ErrorEnum {
                                                            e -> e));
     }
 
-    public static ErrorEnum decode(int code) {
+    public static Optional<ErrorEnum> decode(int code) {
         return Arrays.stream(ErrorEnum.values())
                      .filter(e -> code == e.getCode())
-                     .findFirst()
-                     .orElse(null);
+                     .findFirst();
     }
 }

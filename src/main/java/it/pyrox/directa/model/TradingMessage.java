@@ -1,5 +1,6 @@
 package it.pyrox.directa.model;
 
+import it.pyrox.directa.enums.ErrorEnum;
 import it.pyrox.directa.enums.OrderActionEnum;
 import it.pyrox.directa.enums.TradingMessageCodeEnum;
 
@@ -8,6 +9,7 @@ public class TradingMessage extends Message {
     private String ticker;
     private String orderId;
     private TradingMessageCodeEnum code;
+    private ErrorEnum ErrorCode;
     private OrderActionEnum sentCommand;
     private int amount;
     private double price;
@@ -35,6 +37,14 @@ public class TradingMessage extends Message {
 
     public void setCode(TradingMessageCodeEnum code) {
         this.code = code;
+    }
+
+    public ErrorEnum getErrorCode() {
+        return ErrorCode;
+    }
+
+    public void setErrorCode(ErrorEnum errorCode) {
+        ErrorCode = errorCode;
     }
 
     public OrderActionEnum getSentCommand() {

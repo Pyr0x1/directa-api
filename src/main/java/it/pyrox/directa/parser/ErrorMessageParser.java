@@ -34,7 +34,8 @@ public class ErrorMessageParser implements MessageParser {
                     errorMessage.setTicker(trimmedToken);
                     break;
                 case 2:
-                    errorMessage.setError(ErrorEnum.decode(Integer.parseInt(trimmedToken)));
+                    Optional<ErrorEnum> optEnum = ErrorEnum.decode(Integer.parseInt(trimmedToken));
+                    errorMessage.setError(optEnum.orElse(null));
                     break;
             }
             tokenCounter++;

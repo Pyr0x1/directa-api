@@ -384,7 +384,7 @@ public class TradingApiTest {
     @Test
     void testGetTableTickerListWhenNoTableCodeThenError() throws IOException {
         TableMessage tableMessage = new TableMessage();
-        tableMessage.setDescription("test");
+        tableMessage.setDescription("DESC");
         TradingApi api = getMockedApi(testAccountId, null);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             api.getTableTickerList(tableMessage);
@@ -395,12 +395,77 @@ public class TradingApiTest {
     @Test
     void testGetTableTickerListWhenNoTableDescriptionThenError() throws IOException {
         TableMessage tableMessage = new TableMessage();
-        tableMessage.setCode("code");
+        tableMessage.setCode("C1");
         TradingApi api = getMockedApi(testAccountId, null);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             api.getTableTickerList(tableMessage);
         });
         assertNotNull(exception);
+    }
+
+    @Test
+    void testBuyAtLimitPriceWhenOrderOkThenAnswer() throws IOException, ErrorMessageException {
+        List<String> responseMessage = List.of("TRADOK;A2A;ORD001;3000;ACQAZ;10;100;0.0");
+        TradingApi api = getMockedApi(testAccountId, responseMessage);
+        TradingMessage tradingMessage = api.buyAtLimitPrice("ORD001", "A2A", 10, 100);
+        assertNotNull(tradingMessage);
+        assertEquals(MessageTypeEnum.TRADOK, tradingMessage.getType());
+        assertEquals("A2A", tradingMessage.getTicker());
+        assertEquals("ORD001", tradingMessage.getOrderId());
+        assertEquals(TradingMessageCodeEnum.REQUEST_RECEIVED, tradingMessage.getCode());
+        assertEquals(OrderActionEnum.ACQAZ, tradingMessage.getSentCommand());
+        assertEquals(10, tradingMessage.getAmount());
+        assertEquals(100, tradingMessage.getPrice());
+        assertEquals("0.0", tradingMessage.getErrorDescription());
+    }
+
+    @Test
+    void testBuyAtLimitPriceWhenNeededConfirmationThenAnswer() throws IOException, ErrorMessageException {
+        List<String> responseMessage = List.of("TRADCONFIRM;A2A;ORD001;3003;ACQAZ;10;100;VI TRASMETTO L'ORDINE DI ACQUISTO DI 10 STLAM AL PREZZO DI 100 EURO PER UN VALORE DI 1000 EURO");
+        TradingApi api = getMockedApi(testAccountId, responseMessage);
+        TradingMessage tradingMessage = api.buyAtLimitPrice("ORD001", "A2A", 10, 100);
+        assertNotNull(tradingMessage);
+        assertEquals(MessageTypeEnum.TRADCONFIRM, tradingMessage.getType());
+        assertEquals("A2A", tradingMessage.getTicker());
+        assertEquals("ORD001", tradingMessage.getOrderId());
+        assertEquals(TradingMessageCodeEnum.ORDER_CONFIRMATION_NEEDED, tradingMessage.getCode());
+        assertEquals(OrderActionEnum.ACQAZ, tradingMessage.getSentCommand());
+        assertEquals(10, tradingMessage.getAmount());
+        assertEquals(100, tradingMessage.getPrice());
+        assertEquals("VI TRASMETTO L'ORDINE DI ACQUISTO DI 10 STLAM AL PREZZO DI 100 EURO PER UN VALORE DI 1000 EURO", tradingMessage.getErrorDescription());
+    }
+
+    @Test
+    void testBuyAtLimitPriceWhenTradingErrorThenAnswer() throws IOException {
+        List<String> responseMessage = List.of("TRADERR;A2A;ORD001;1012;ACQAZ;10;200;L'ORDINE NON PUO' ESSERE INOLTRATO PER SCOSTAMENTO DI PREZZO TROPPO ELEVATO RISPETTO AI VALORI DI MERCATO");
+        TradingApi api = getMockedApi(testAccountId, responseMessage);
+        ErrorMessageException exception = assertThrows(ErrorMessageException.class, () -> {
+            api.buyAtLimitPrice("ORD001", "A2A", 10, 200);
+        });
+        assertNotNull(exception);
+        assertEquals(ErrorEnum.ERR_TRADING_REQUEST_ERROR, exception.getError());
+    }
+
+    @Test
+    void testBuyAtLimitPriceWhenNoOrderIdThenError() throws IOException {
+        List<String> responseMessage = List.of("ERR;A2A;1009");
+        TradingApi api = getMockedApi(testAccountId, responseMessage);
+        ErrorMessageException exception = assertThrows(ErrorMessageException.class, () -> {
+            api.buyAtLimitPrice(null, "A2A", 10, 100);
+        });
+        assertNotNull(exception);
+        assertEquals(ErrorEnum.ERR_TRADING_CMD_INCOMPLETE, exception.getError());
+    }
+
+    @Test
+    void testBuyAtLimitPriceWhenNoTickerThenError() throws IOException {
+        List<String> responseMessage = List.of("ERR;N/A;1002");
+        TradingApi api = getMockedApi(testAccountId, responseMessage);
+        ErrorMessageException exception = assertThrows(ErrorMessageException.class, () -> {
+            api.buyAtLimitPrice("ORD001", null, 10, 100);
+        });
+        assertNotNull(exception);
+        assertEquals(ErrorEnum.ERR_EMPTY_LIST, exception.getError());
     }
 
     // TODO this is a shared functionality, so maybe it could be moved in a common test class where all shared functionalities are tested

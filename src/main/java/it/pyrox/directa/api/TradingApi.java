@@ -1,5 +1,6 @@
 package it.pyrox.directa.api;
 
+import it.pyrox.directa.enums.MessageTypeEnum;
 import it.pyrox.directa.enums.OrderActionEnum;
 import it.pyrox.directa.exception.ErrorMessageException;
 import it.pyrox.directa.model.*;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class TradingApi extends DirectaApi {
 
@@ -260,21 +262,22 @@ public class TradingApi extends DirectaApi {
     }
 
     public TradingMessage buyAtLimitPrice(String orderId, String ticker, int amount, double price) throws IOException, ErrorMessageException {
-        if (orderId == null || ticker == null || amount == 0 || price == 0) {
-            throw new IllegalArgumentException("Order id and ticker cannot be null and you must specify amount and price");
-        }
+        // Don't perform input validation because the server will do it and send an error if the command isn't compliant
         TradingMessage response = null;
         String args = String.join(DirectaApi.DELIMITER_COMMA,
-                                     orderId,
-                                     ticker,
-                                     Integer.toString(amount),
-                                     Double.toString(price));
+                                  Optional.ofNullable(orderId).orElse(DirectaApi.EMPTY_STRING),
+                                  Optional.ofNullable(ticker).orElse(DirectaApi.EMPTY_STRING),
+                                  Integer.toString(amount),
+                                  Double.toString(price));
         String command = String.join(DirectaApi.DELIMITER_SPACE, OrderActionEnum.ACQAZ.name(), args);
         connectionManager.sendCommand(command);
         String messageLine = connectionManager.readMessageLine();
         MessageParser parser = ParserFactory.create(messageLine);
         if (parser instanceof TradingMessageParser) {
             response = ((TradingMessageParser)parser).parse(messageLine);
+            if (MessageTypeEnum.TRADERR.equals(response.getType())) {
+                throw new ErrorMessageException(response.getErrorCode());
+            }
         }
         else if (parser instanceof ErrorMessageParser) {
             ErrorMessage errorMessage = ((ErrorMessageParser) parser).parse(messageLine);
