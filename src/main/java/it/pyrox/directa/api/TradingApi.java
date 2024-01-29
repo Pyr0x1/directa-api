@@ -293,9 +293,45 @@ public class TradingApi extends DirectaApi {
         return buyOrSellGenericCall(OrderActionEnum.VENSTOPLIMIT, orderId, ticker, amount, price, trigger);
     }
 
+    public TradingMessage revokeOrder(String orderId) throws IOException, ErrorMessageException {
+        String command = String.join(DirectaApi.DELIMITER_SPACE, OrderActionEnum.REVORD.name(), orderId);
+        connectionManager.sendCommand(command);
+        String messageLine = connectionManager.readMessageLine();
+        return manageTradingMessageResponse(messageLine);
+    }
+
+    public TradingMessage revokeAllOrders(String ticker) throws IOException, ErrorMessageException {
+        String command = String.join(DirectaApi.DELIMITER_SPACE, OrderActionEnum.REVALL.name(), ticker);
+        connectionManager.sendCommand(command);
+        String messageLine = connectionManager.readMessageLine();
+        return manageTradingMessageResponse(messageLine);
+    }
+
+    public TradingMessage confirmOrder(String orderId) throws IOException, ErrorMessageException {
+        String command = String.join(DirectaApi.DELIMITER_SPACE, OrderActionEnum.CONFORD.name(), orderId);
+        connectionManager.sendCommand(command);
+        String messageLine = connectionManager.readMessageLine();
+        return manageTradingMessageResponse(messageLine);
+    }
+
+    public TradingMessage editLimitPrice(String orderId, double price) throws IOException, ErrorMessageException {
+        String args = String.join(DirectaApi.DELIMITER_COMMA, orderId, Double.toString(price));
+        String command = String.join(DirectaApi.DELIMITER_SPACE, OrderActionEnum.MODORD.name(), args);
+        connectionManager.sendCommand(command);
+        String messageLine = connectionManager.readMessageLine();
+        return manageTradingMessageResponse(messageLine);
+    }
+
+    public TradingMessage editLimitPriceAndStopTrigger(String orderId, double price, double trigger) throws IOException, ErrorMessageException {
+        String args = String.join(DirectaApi.DELIMITER_COMMA, orderId, Double.toString(price), Double.toString(trigger));
+        String command = String.join(DirectaApi.DELIMITER_SPACE, OrderActionEnum.MODORD.name(), args);
+        connectionManager.sendCommand(args);
+        String messageLine = connectionManager.readMessageLine();
+        return manageTradingMessageResponse(messageLine);
+    }
+
     private TradingMessage buyOrSellGenericCall(OrderActionEnum action, String orderId, String ticker, Integer amount, Double price, Double trigger) throws IOException, ErrorMessageException {
-        // Don't perform input validation because the server will do it and send an error if the command isn't compliant
-        TradingMessage response = null;
+        // Don't perform input validation because the server will do it and send an error if the command isn't compliant.
         // These arguments are always needed, so join them, if one is missing there will be an error
         String args = String.join(DirectaApi.DELIMITER_COMMA,
                       Optional.ofNullable(orderId).orElse(DirectaApi.EMPTY_STRING),
@@ -315,6 +351,11 @@ public class TradingApi extends DirectaApi {
         String command = String.join(DirectaApi.DELIMITER_SPACE, action.name(), args);
         connectionManager.sendCommand(command);
         String messageLine = connectionManager.readMessageLine();
+        return manageTradingMessageResponse(messageLine);
+    }
+
+    private TradingMessage manageTradingMessageResponse(String messageLine) throws ErrorMessageException {
+        TradingMessage response = null;
         MessageParser parser = ParserFactory.create(messageLine);
         if (parser instanceof TradingMessageParser) {
             response = ((TradingMessageParser)parser).parse(messageLine);
