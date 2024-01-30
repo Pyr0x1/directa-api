@@ -1,2 +1,2 @@
-# directa-api
+# directa-api [![workflow](https://github.com/Pyr0x1/directa-api/actions/workflows/build.yml/badge.svg)](https://github.com/Pyr0x1/directa-api/actions/workflows/build.yml) [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 Unofficial Java API to integrate with the functionalities provided by the Directa trading platform.
